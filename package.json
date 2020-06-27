@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "restful api server of hakbong service",
+  "main": "serve.js",
+  "scripts": {
+    "build": "babel ./ --out-dir build --delete-dir-on-start --include-dotfiles --ignore node_modules && cp -r ./config ./build/config",
+    "start": "pm2 start ./build/serve.js -o ./build/yarn-serve.log",
+    "restart": "pm2 restart serve",
+    "stop": "pm2 delete serve",
+    "dev": "nodemon --exec babel-node ./serve.js --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "core-js": "^3.6.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "https": "^1.0.0",
+    "mongoose": "^5.9.15"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/polyfill": "^7.8.7",
+    "@babel/preset-env": "^7.9.6"
+  }
+}
