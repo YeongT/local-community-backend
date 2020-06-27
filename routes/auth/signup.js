@@ -9,7 +9,7 @@ router.post ('/', async (req,res) => {
     /**
      * CHECK DATABASE STATUS
      */
-    if (db_error == undefined || !(db_error == null)) {
+    if (!(db_error == null)) {
         res.status(500);
         res.send('ERR_DATABASE_NOT_CONNECTED');
         return;
@@ -63,13 +63,6 @@ router.post ('/', async (req,res) => {
       return;
     }
 
-    /** 
-     * ENCRYPT USER PHONE NUMBER
-     */
-    var cipher = crypto.createCipher('aes-512-cbc',salt)
-    var encryptPhone = cipher.update(phone,'utf8','hex')
-    encryptPhone += cipher.final('hex');
-
     /**
      * SAVE USER ACCOUNT ON DATABASE
      */
@@ -78,7 +71,7 @@ router.post ('/', async (req,res) => {
         passwd: `${encryptPassword.toString('base64')}`,
         name,
         gender,
-        phone: `${encryptPhone.toString('base64')}`,
+        phone,
         area : {
             state : `${area.state}`,
             city : `${area.city}`,
