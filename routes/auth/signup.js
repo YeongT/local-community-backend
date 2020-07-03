@@ -171,7 +171,7 @@ router.post ('/', async (req,res) => {
             });
         }
         catch (err) {
-            console.log(err); //SHOW ERROR FOR PM2 INSTANCE
+            console.error(err); //SHOW ERROR FOR PM2 INSTANCE
             _result = 'ERR_VERIFY_EMAIL_SEND_FAILED';
             res.status(424).send(_result.toString());
             SAVE_LOG(_result);
