@@ -1,0 +1,131 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is api docs for local-community-service on implude project.<br> If you want to know our service more, please visit <a href=\"https://hakbong.me\">HERE</a>.",
+    "version": "1.0.0",
+    "title": "Local-Community",
+    "termsOfService": "https://hakbong.me/terms/",
+    "contact": {
+      "email": "contact@hakbong.me"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "api.hakbong.me",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "User Create",
+        "description": "api node for generating account",
+        "operationId": "createUser",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "email of account",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "password of account",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "nickname of account",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "formData",
+            "description": "phone number of account (with -)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gender",
+            "in": "formData",
+            "description": "gender of account",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "areaString",
+            "in": "formData",
+            "type": "string",
+            "description": "user area of account",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "account generated and verification email sent."
+          },
+          "400": {
+            "description": "data user provided format invalid."
+          },
+          "409": {
+            "description": "email user provided duplicated."
+          },
+          "412": {
+            "description": "data user provided doesn't satisfy format."
+          },
+          "424": {
+            "description": "account generated but verification email wasn't sent.<br> please resend verification email in application."
+          },
+          "500": {
+            "description": "unknown server error occured (cause of network status)"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserInfo": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "areaString": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about our team",
+    "url": "https://implude.com/teams/aidu"
+  }
+}
