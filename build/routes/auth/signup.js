@@ -290,17 +290,19 @@ router.post('/', /*#__PURE__*/function () {
                         }());
 
                       case 26:
-                        _context2.next = 33;
+                        _context2.next = 34;
                         break;
 
                       case 28:
                         _context2.prev = 28;
                         _context2.t1 = _context2["catch"](20);
+                        console.error(_context2.t1); //SHOW ERROR FOR PM2 INSTANCE
+
                         _result = 'ERR_VERIFY_EMAIL_SEND_FAILED';
                         res.status(424).send(_result.toString());
                         SAVE_LOG(_result);
 
-                      case 33:
+                      case 34:
                       case "end":
                         return _context2.stop();
                     }
