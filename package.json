@@ -4,7 +4,7 @@
   "description": "restful api server of hakbong service",
   "main": "serve.js",
   "scripts": {
-    "build": "babel ./ --out-dir build --delete-dir-on-start --include-dotfiles --ignore node_modules && cp -r ./config ./build/config && cp ./routes/swagger.json ./build/routes/swagger.json",
+    "build": "babel ./ --out-dir build --delete-dir-on-start --include-dotfiles --ignore node_modules && cp -r ./config ./build/config && cp ./routes/swagger.json ./build/routes/swagger.json && cp -r ./models/html ./build/models/html",
     "start": "pm2 start ./build/serve.js -o ./build/yarn-serve.log",
     "restart": "pm2 restart serve",
     "stop": "pm2 delete serve",
