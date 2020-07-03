@@ -1,9 +1,8 @@
-  
 import { model, Schema } from 'mongoose';
 
 const User = new Schema({
   email: String,
-  passwd : String,
+  password : String,
   name : String,
   gender : Number,
   phone : String,
@@ -12,7 +11,12 @@ const User = new Schema({
       City : String,
       Dong : String
   },
-  salt : String
+  lastlogin : Date,
+  salt : String,
+  enable : {
+    type : Number,
+    default : 0
+  }
 });
 
 export default model('Users', User);

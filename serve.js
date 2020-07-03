@@ -5,6 +5,7 @@
  */
 
 import { createServer } from 'https';
+import 'babel-polyfill';
 import fs from 'fs';
 
 
