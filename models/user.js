@@ -14,8 +14,8 @@ const User = new Schema({
   lastlogin : Date,
   salt : String,
   enable : {
-    type : Number,
-    default : 0
+    type : Boolean,
+    default : false
   }
 });
 
