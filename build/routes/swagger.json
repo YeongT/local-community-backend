@@ -99,6 +99,50 @@
           }
         }
       }
+    },
+    "/auth/active": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "User Activation",
+        "description": "api node for activating account",
+        "operationId": "activeUser",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "The user email for verification",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "The token for verification",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "account email verification finished."
+          },
+          "409": {
+            "description": "email user provided not exist or already activated."
+          },
+          "412": {
+            "description": "data user provided doesn't satisfy format."
+          },
+          "500": {
+            "description": "unknown server error occured (cause of network status)"
+          }
+        }
+      }
     }
   },
   "definitions": {
