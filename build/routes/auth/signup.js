@@ -9,11 +9,13 @@ var _express = require("express");
 
 var _crypto = require("crypto");
 
-var _fs = require("fs");
+var _querystring = require("querystring");
+
+var _nodemailer = require("nodemailer");
 
 var _requestIp = require("request-ip");
 
-var _nodemailer = require("nodemailer");
+var _fs = require("fs");
 
 var _app = require("../../app.js");
 
@@ -169,7 +171,7 @@ router.post('/', /*#__PURE__*/function () {
             /**
              * SAVE USER ACCOUNT ON DATABASE
              */
-            _result = 'ERR_SERVER_FAILED';
+            _result = 'ERR_SERVER_FAILED_TEMPORARILY';
             createUser = new _user["default"]({
               email: email,
               password: "".concat(encryptPassword.toString('base64')),
@@ -197,7 +199,7 @@ router.post('/', /*#__PURE__*/function () {
                 result: __result
               });
               createLog.save(function (err) {
-                if (err) console.log(err);
+                if (err) console.error(err);
               });
             };
 
@@ -256,7 +258,7 @@ router.post('/', /*#__PURE__*/function () {
                       case 20:
                         _context2.prev = 20;
                         exampleEmail = (0, _fs.readFileSync)(__dirname + '/../../models/html/active.html').toString();
-                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat(email, "&&token=").concat(token.toString('base64')));
+                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat(escape(email), "&&token=").concat(escape(token.toString('base64'))));
                         mailOptions = {
                           from: 'Local-Community<no-reply@hakbong.me>',
                           to: email,
