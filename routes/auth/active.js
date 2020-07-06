@@ -60,7 +60,7 @@ router.get ('/', async (req,res) => {
     /**
      * CHECK WHETHER TOKEN IS VALID
      */
-    const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token, "expired" : {$gte : new Date()} });
+    const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token, "expired" : {$gte : new Date() + 9*60*60*1000 } });
     if (!_token) {
         res.status(409).send('ERR_PROVIDED_TOKEN_INVALID');
         return;
