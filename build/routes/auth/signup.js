@@ -31,16 +31,10 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-require('moment-timezone');
-
 var router = (0, _express.Router)();
-
-var moment = require('moment');
-
-moment.tz.setDefault("Asia/Seoul");
 router.post('/', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(req, res) {
-    var transporter, verify, _req$body, email, password, name, gender, phone, areaString, email_chk, password_chk, phone_chk, name_chk, area, user, salt, iv, encryptPassword, cipher, encryptPhone, _result, createUser, SAVE_LOG;
+    var transporter, verify, _req$body, email, password, name, gender, phone, areaString, email_chk, password_chk, phone_chk, name_chk, area, user, salt, iv, encryptPassword, cipher, encryptPhone, _result, createUser, moment, SAVE_LOG;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -93,7 +87,7 @@ router.post('/', /*#__PURE__*/function () {
              * CHECK WHETHER PROVIDED POST DATA IS VALID
              */
             _req$body = req.body, email = _req$body.email, password = _req$body.password, name = _req$body.name, gender = _req$body.gender, phone = _req$body.phone, areaString = _req$body.areaString;
-            email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i, password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/, phone_chk = /^(?:(010-?\d{4})|(01[1|6|7|8|9]-?\d{3,4}))-?\d{4}$/, name_chk = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-1]{2,10}/;
+            email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i, password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/, phone_chk = /^(?:(010-?\d{4})|(01[1|6|7|8|9]-?\d{3,4}))-?\d{4}$/, name_chk = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-1 ]{2,10}/;
 
             if (email && password && name && gender && phone && areaString) {
               _context3.next = 21;
@@ -113,34 +107,46 @@ router.post('/', /*#__PURE__*/function () {
             return _context3.abrupt("return");
 
           case 24:
+            area = "THIS IS DEFAULT AREA OBEJCT";
+            _context3.prev = 25;
             area = JSON.parse(areaString);
 
             if (area.state && area.city && area.dong) {
-              _context3.next = 28;
+              _context3.next = 30;
               break;
             }
 
             res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
             return _context3.abrupt("return");
 
-          case 28:
-            _context3.next = 30;
+          case 30:
+            _context3.next = 36;
+            break;
+
+          case 32:
+            _context3.prev = 32;
+            _context3.t1 = _context3["catch"](25);
+            res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
+            return _context3.abrupt("return");
+
+          case 36:
+            _context3.next = 38;
             return _user["default"].findOne({
               "email": email
             });
 
-          case 30:
+          case 38:
             user = _context3.sent;
 
             if (!user) {
-              _context3.next = 34;
+              _context3.next = 42;
               break;
             }
 
             res.status(409).send('ERR_EMAIL_DUPLICATION');
             return _context3.abrupt("return");
 
-          case 34:
+          case 42:
             /**
              * ENCRYPT USER PASSWORD WITH RANDOM SALT
              */
@@ -148,26 +154,26 @@ router.post('/', /*#__PURE__*/function () {
             encryptPassword = (0, _crypto.pbkdf2Sync)(password, salt.toString('base64'), 100000, 64, 'SHA512');
 
             if (encryptPassword) {
-              _context3.next = 39;
+              _context3.next = 47;
               break;
             }
 
             res.status(500).send('ERR_PASSWORD_ENCRYPT_FAILED');
             return _context3.abrupt("return");
 
-          case 39:
+          case 47:
             cipher = (0, _crypto.createCipheriv)('aes-256-cbc', Buffer.from(salt), iv);
             encryptPhone = Buffer.concat([cipher.update(phone), cipher["final"]()]);
 
             if (encryptPhone) {
-              _context3.next = 44;
+              _context3.next = 52;
               break;
             }
 
             res.status(500).send('ERR_PHONE_ENCRYPT_FAILED');
             return _context3.abrupt("return");
 
-          case 44:
+          case 52:
             /**
              * SAVE USER ACCOUNT ON DATABASE
              */
@@ -189,6 +195,11 @@ router.post('/', /*#__PURE__*/function () {
              * SAVE LOG FUNCTION
              */
 
+            require('moment-timezone');
+
+            moment = require('moment');
+            moment.tz.setDefault("Asia/Seoul");
+
             SAVE_LOG = function SAVE_LOG(__result) {
               var createLog = new _accesslog["default"]({
                 timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -203,7 +214,7 @@ router.post('/', /*#__PURE__*/function () {
               });
             };
 
-            _context3.next = 49;
+            _context3.next = 60;
             return createUser.save( /*#__PURE__*/function () {
               var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(err) {
                 var token, newToken, _verify, exampleEmail, emailData, mailOptions;
@@ -227,7 +238,9 @@ router.post('/', /*#__PURE__*/function () {
                         newToken = new _token["default"]({
                           owner: email,
                           type: 'SIGNUP',
-                          token: "".concat(token.toString('base64'))
+                          token: "".concat(token.toString('base64')),
+                          created: Date.now() + 9 * 60 * 60 * 1000,
+                          expired: Date.now() + 24 * 60 * 60 * 1000 + 9 * 60 * 60 * 1000
                         });
                         _context2.prev = 6;
                         _context2.next = 9;
@@ -258,7 +271,7 @@ router.post('/', /*#__PURE__*/function () {
                       case 20:
                         _context2.prev = 20;
                         exampleEmail = (0, _fs.readFileSync)(__dirname + '/../../models/html/active.html').toString();
-                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat(escape(email), "&&token=").concat(escape(token.toString('base64'))));
+                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat((0, _querystring.escape)(email), "&&token=").concat((0, _querystring.escape)(token.toString('base64'))));
                         mailOptions = {
                           from: 'Local-Community<no-reply@hakbong.me>',
                           to: email,
@@ -317,12 +330,12 @@ router.post('/', /*#__PURE__*/function () {
               };
             }());
 
-          case 49:
+          case 60:
           case "end":
             return _context3.stop();
         }
       }
-    }, _callee3, null, [[4, 12]]);
+    }, _callee3, null, [[4, 12], [25, 32]]);
   }));
 
   return function (_x, _x2) {

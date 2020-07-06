@@ -14,11 +14,11 @@ var User = new _mongoose.Schema({
   gender: Number,
   phone: String,
   area: {
-    State: String,
-    City: String,
-    Dong: String
+    state: String,
+    city: String,
+    dong: String
   },
-  lastlogin: Date,
+  lastlogin: String,
   salt: String,
   enable: {
     type: Boolean,
