@@ -31,16 +31,10 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-require('moment-timezone');
-
 var router = (0, _express.Router)();
-
-var moment = require('moment');
-
-moment.tz.setDefault("Asia/Seoul");
 router.post('/', /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(req, res) {
-    var transporter, verify, _req$body, email, password, name, gender, phone, areaString, email_chk, password_chk, phone_chk, name_chk, area, user, salt, iv, encryptPassword, cipher, encryptPhone, _result, createUser, SAVE_LOG;
+    var transporter, verify, _req$body, email, password, name, gender, phone, areaString, email_chk, password_chk, phone_chk, name_chk, area, user, salt, iv, encryptPassword, cipher, encryptPhone, _result, createUser, moment, SAVE_LOG;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
@@ -189,6 +183,11 @@ router.post('/', /*#__PURE__*/function () {
              * SAVE LOG FUNCTION
              */
 
+            require('moment-timezone');
+
+            moment = require('moment');
+            moment.tz.setDefault("Asia/Seoul");
+
             SAVE_LOG = function SAVE_LOG(__result) {
               var createLog = new _accesslog["default"]({
                 timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -203,7 +202,7 @@ router.post('/', /*#__PURE__*/function () {
               });
             };
 
-            _context3.next = 49;
+            _context3.next = 52;
             return createUser.save( /*#__PURE__*/function () {
               var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(err) {
                 var token, newToken, _verify, exampleEmail, emailData, mailOptions;
@@ -227,7 +226,9 @@ router.post('/', /*#__PURE__*/function () {
                         newToken = new _token["default"]({
                           owner: email,
                           type: 'SIGNUP',
-                          token: "".concat(token.toString('base64'))
+                          token: "".concat(token.toString('base64')),
+                          created: Date.now() + 9 * 60 * 60 * 1000,
+                          expired: Date.now() + 24 * 60 * 60 * 1000 + 9 * 60 * 60 * 1000
                         });
                         _context2.prev = 6;
                         _context2.next = 9;
@@ -258,7 +259,7 @@ router.post('/', /*#__PURE__*/function () {
                       case 20:
                         _context2.prev = 20;
                         exampleEmail = (0, _fs.readFileSync)(__dirname + '/../../models/html/active.html').toString();
-                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat(escape(email), "&&token=").concat(escape(token.toString('base64'))));
+                        emailData = exampleEmail.replace('####INPUT-YOUR-LINK_HERE####', "https://api.hakbong.me/auth/active?email=".concat((0, _querystring.escape)(email), "&&token=").concat((0, _querystring.escape)(token.toString('base64'))));
                         mailOptions = {
                           from: 'Local-Community<no-reply@hakbong.me>',
                           to: email,
@@ -317,7 +318,7 @@ router.post('/', /*#__PURE__*/function () {
               };
             }());
 
-          case 49:
+          case 52:
           case "end":
             return _context3.stop();
         }
