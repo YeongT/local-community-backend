@@ -121,9 +121,10 @@ router.post('/', /*#__PURE__*/function () {
 
             _result = 'ERR_SERVER_FAILED_TEMPORARILY';
             encryptPassword = (0, _crypto.pbkdf2Sync)(password, _user.salt, 100000, 64, 'SHA512');
+            req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
 
             if (!(encryptPassword.toString("base64") != _user.password)) {
-              _context2.next = 25;
+              _context2.next = 26;
               break;
             }
 
@@ -132,20 +133,19 @@ router.post('/', /*#__PURE__*/function () {
             SAVE_LOG(_result);
             return _context2.abrupt("return");
 
-          case 25:
+          case 26:
             /**
              * UPDATE LAST_LOGIN FIELD
              */
             _result = 'SUCCED_USER_LOGIN';
-            _context2.next = 28;
+            _context2.next = 29;
             return _user2["default"].updateOne({
               "email": email
             }, {
-              "lastlogin": moment().format('YYYY-MM-DD HH:mm:ss'),
-              "__v": undefined
+              "lastlogin": moment().format('YYYY-MM-DD HH:mm:ss')
             });
 
-          case 28:
+          case 29:
             update = _context2.sent;
             if (!update) console.error(update);
             /**
@@ -158,7 +158,7 @@ router.post('/', /*#__PURE__*/function () {
             jwtresult = (0, _jwtToken.jwtSign)(_user);
 
             if (jwtresult) {
-              _context2.next = 39;
+              _context2.next = 40;
               break;
             }
 
@@ -167,11 +167,11 @@ router.post('/', /*#__PURE__*/function () {
             SAVE_LOG(_result);
             return _context2.abrupt("return");
 
-          case 39:
+          case 40:
             res.status(200).send(jwtresult);
             SAVE_LOG(_result);
 
-          case 41:
+          case 42:
           case "end":
             return _context2.stop();
         }

@@ -13,7 +13,12 @@ router.get ('/', async (req,res) => {
         return;
     } 
     const result = decode(token);
-    res.status(result ? 200 : 500).send(result);
+    if (result) {
+        result._id = undefined;
+        result.__v = undefined;
+        res.status(200).send(result);
+    }
+    else res.status(500).send('ERR_TOKEN_DECODE_FAILED');
 });
 
 

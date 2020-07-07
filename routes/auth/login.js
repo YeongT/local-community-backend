@@ -65,6 +65,7 @@ router.post ('/', async (req,res) => {
      */
     var _result = 'ERR_SERVER_FAILED_TEMPORARILY';
     const encryptPassword = pbkdf2Sync(password, _user.salt, 100000, 64, 'SHA512');
+    req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
     if (encryptPassword.toString("base64") != _user.password) {
       _result = 'ERR_USER_AUTH_FAILED';
       res.status(500).send(_result);
@@ -76,7 +77,7 @@ router.post ('/', async (req,res) => {
      * UPDATE LAST_LOGIN FIELD
      */
     _result = 'SUCCED_USER_LOGIN';
-    const update = await User.updateOne({"email": email }, {"lastlogin" : moment().format('YYYY-MM-DD HH:mm:ss'), "__v" : undefined});
+    const update = await User.updateOne({"email": email }, {"lastlogin" : moment().format('YYYY-MM-DD HH:mm:ss')});
     if (!update) console.error(update);
 
     /**

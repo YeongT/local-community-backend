@@ -45,7 +45,7 @@ router.post ('/', async (req,res) => {
     const email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
           password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/,
           phone_chk = /^(?:(010-?\d{4})|(01[1|6|7|8|9]-?\d{3,4}))-?\d{4}$/,
-          name_chk = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-1]{2,10}/;
+          name_chk = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-1 ]{2,10}/;
     
     if (!(email && password && name && gender && phone && areaString )) {
         res.status(412).send('ERR_DATA_NOT_PROVIDED');
@@ -55,8 +55,15 @@ router.post ('/', async (req,res) => {
         res.status(400).send('ERR_DATA_FORMAT_INVALID');
         return;   
     }
-    const area = JSON.parse(areaString);
-    if (!(area.state && area.city && area.dong)) {
+    var area = "THIS IS DEFAULT AREA OBEJCT";
+    try {
+        area = JSON.parse(areaString);
+        if (!(area.state && area.city && area.dong)) {
+            res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
+            return;
+        }
+    }
+    catch {
         res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
         return;
     }
