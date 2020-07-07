@@ -36,7 +36,12 @@ router.get('/', /*#__PURE__*/function () {
 
           case 4:
             result = (0, _jsonwebtoken.decode)(token);
-            res.status(result ? 200 : 500).send(result);
+
+            if (result) {
+              result._id = undefined;
+              result.__v = undefined;
+              res.status(200).send(result);
+            } else res.status(500).send('ERR_TOKEN_DECODE_FAILED');
 
           case 6:
           case "end":

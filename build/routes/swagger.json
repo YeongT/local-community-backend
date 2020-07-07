@@ -59,7 +59,7 @@
           {
             "name": "phone",
             "in": "formData",
-            "description": "phone number of account (with -)",
+            "description": "phone number of account (only number)",
             "required": true,
             "type": "string"
           },
@@ -264,6 +264,14 @@
           "type": "string",
           "format": "date",
           "pattern": "yyyy-MM-dd hh:mm:ss"
+        },
+        "created": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "expired": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     }
