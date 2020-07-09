@@ -68,7 +68,7 @@ router.post ('/', async (req,res) => {
     req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
     if (encryptPassword.toString("base64") != _user.password) {
       _result = 'ERR_USER_AUTH_FAILED';
-      res.status(500).send(_result);
+      res.status(409).send(_result);
       SAVE_LOG(_result);
       return;
     }
