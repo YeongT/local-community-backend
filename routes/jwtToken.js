@@ -5,7 +5,6 @@ const jwtSign = (object) => {
         const signed = _sign(object.toJSON(), process.env.JWT_TOKEN_SECRETKEY, {expiresIn: '5h'});
         return signed;
     } catch (err) {
-        console.error(err);
         return false;
     }
 };
@@ -15,7 +14,6 @@ const jwtVerify = (token, secret) => {
         const verified = _verify(token, !secret ? process.env.JWT_TOKEN_SECRETKEY : secret);
         return verified;
     } catch (err) {
-        console.error(err);
         return false;
     }
 };

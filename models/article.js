@@ -1,19 +1,15 @@
 import { model, Schema } from 'mongoose';
 
-const Comment = new Schema({
+const Article = new Schema({
   timestamp : String,
-  target : {
-    ispost : {
-        type : Boolean,
-        default : false
-    },
-    target : { type: Schema.Types.ObjectId }
-  },
+  target : { type: Schema.Types.ObjectId },
   content : {
-     text : String,
-     attach : {
-        picture : Array,
-        link : String,
+    title : String,
+    text : String,
+    tags : Array,
+    attach : {
+      picture : Array,
+      link : String
     }
   },
   owner : { type: Schema.Types.ObjectId },
@@ -35,4 +31,4 @@ const Comment = new Schema({
 
 });
 
-export default model('comment', Comment );
+export default model('article', Article);
