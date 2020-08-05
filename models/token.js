@@ -4,8 +4,8 @@ const token = new Schema({
   owner: String,
   type: String,
   token: String,
-  created: Date,
-  expired: Date
+  created: String,
+  expired: String
 });
 
-export default model('Token', token);
+export default model('token', token);

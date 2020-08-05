@@ -4,18 +4,21 @@ import { escape as urlencode } from 'querystring';
 import { createTransport } from 'nodemailer';
 import { getClientIp } from 'request-ip';
 import { readFileSync } from 'fs';
-import { db_error } from '../../app.js';
+import { db_error } from '../../app';
 import Token from '../../models/token';
-import accessLog from '../../models/accesslog';
+import authLog from '../../models/authlog';
 import User from '../../models/user';
 
 const router = Router();
 router.post ('/', async (req,res) => {
+    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+
     /**
      * CHECK DATABASE AND MAIL_SERVER STATE
      */
     if (!(db_error == null)) {
-        res.status(500).send('ERR_DATABASE_NOT_CONNECTED');
+        _response.result = 'ERR_DATABASE_NOT_CONNECTED';
+        res.status(500).json(_response);
         return;
     }
 
@@ -33,8 +36,10 @@ router.post ('/', async (req,res) => {
         const verify = await transporter.verify();
         if(!verify) throw (verify);
     }
-    catch {
-        res.status(500).send('ERR_MAIL_SERVER_NOT_CONNECTED');
+    catch (err) {
+        console.error(err);
+        _response.result = 'ERR_MAIL_SERVER_NOT_CONNECTED';
+        res.status(500).json(_response);
         return;
     }
 
@@ -48,23 +53,28 @@ router.post ('/', async (req,res) => {
           name_chk = /^[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z0-1 ]{2,10}/;
     
     if (!(email && password && name && gender && phone && areaString )) {
-        res.status(412).send('ERR_DATA_NOT_PROVIDED');
+        _response.result = 'ERR_DATA_NOT_PROVIDED';
+        res.status(412).json(_response);
         return;
     }
     if (!(email_chk.test(email) && password_chk.test(password) && name_chk.test(name) && phone_chk.test(phone))) { 
-        res.status(400).send('ERR_DATA_FORMAT_INVALID');
+        _response.result = 'ERR_DATA_FORMAT_INVALID';
+        res.status(400).json(_response);
         return;   
     }
     var area = "THIS IS DEFAULT AREA OBEJCT";
     try {
         area = JSON.parse(areaString);
         if (!(area.state && area.city && area.dong)) {
-            res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
+            _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
+            res.status(400).json(_response);
             return;
         }
     }
-    catch {
-        res.status(400).send('ERR_AREA_DATA_FORMAT_INVALID');
+    catch (err) {
+        _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
+        _response.error = err;
+        res.status(400).json(_response);
         return;
     }
 
@@ -74,7 +84,8 @@ router.post ('/', async (req,res) => {
     
     const user = await User.findOne({"email" : email});
     if (user) {
-        res.status(409).send('ERR_EMAIL_DUPLICATION');
+        _response.result = 'ERR_EMAIL_DUPLICATION';
+        res.status(409).json(_response);
         return;
     }
 
@@ -84,20 +95,21 @@ router.post ('/', async (req,res) => {
     const salt = randomBytes(32),iv = randomBytes(16);
     const encryptPassword = pbkdf2Sync(password, salt.toString('base64'), 100000, 64, 'SHA512');
     if (!encryptPassword) {
-      res.status(500).send('ERR_PASSWORD_ENCRYPT_FAILED');
-      return;
+        _response.result = 'ERR_PASSWORD_ENCRYPT_FAILED';
+        res.status(500).json(_response);
+        return;
     }
     const cipher = createCipheriv('aes-256-cbc', Buffer.from(salt), iv);
     const encryptPhone = Buffer.concat([cipher.update(phone), cipher.final()]);
     if (!encryptPhone) {
-        res.status(500).send('ERR_PHONE_ENCRYPT_FAILED');
+        _response.result = 'ERR_PHONE_ENCRYPT_FAILED';
+        res.status(500).json(_response);
         return;
     }
 
     /**
      * SAVE USER ACCOUNT ON DATABASE
      */
-    var _result = 'ERR_SERVER_FAILED_TEMPORARILY';
     const createUser = new User ({
         email,
         password: `${encryptPassword.toString('base64')}`,
@@ -118,14 +130,14 @@ router.post ('/', async (req,res) => {
     require('moment-timezone');
     const moment = require('moment');
     moment.tz.setDefault("Asia/Seoul");
-    const SAVE_LOG = (__result) => {
-        const createLog = new accessLog ({
+    const SAVE_LOG = (_response) => {
+        const createLog = new authLog ({
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
             causedby : email,
             originip : getClientIp(req),
             category : 'SIGNUP',
             details : createUser,
-            result : __result,
+            result : _response,
         });
         createLog.save((err) => {
             if (err) console.error(err);
@@ -135,8 +147,9 @@ router.post ('/', async (req,res) => {
     await createUser.save(async (err) => {
         //# HANDLE WHEN SAVE TASK FAILED
         if (err) {
-            _result = 'ERR_USER_SAVE_FAILED';
-            res.status(500).send(_result.toString());
+            _response.result = 'ERR_USER_SAVE_FAILED';
+            _response.error = err;
+            res.status(500).json(_response);
             return;
         }
         
@@ -146,17 +159,19 @@ router.post ('/', async (req,res) => {
             owner: email,
             type:'SIGNUP',
             token:`${token.toString('base64')}`,
-            created: Date.now() + 9*60*60*1000,
-            expired: Date.now() + 24*60*60*1000 + 9*60*60*1000
+            created: moment().format('YYYY-MM-DD HH:mm:ss'), 
+            expired: moment().add(1,'d').format('YYYY-MM-DD HH:mm:ss'), 
         });
         try {
             const verify = await newToken.save();
             if (!verify) throw (verify);
         }
-        catch {
-            _result = 'ERR_AUTH_TOKEN_SAVE_FAILED';
-            res.status(424).send(_result.toString());
-            SAVE_LOG(_result);
+        catch (err) {
+            console.error(err);
+            _response.result = 'ERR_AUTH_TOKEN_SAVE_FAILED';
+            _response.error = err;
+            res.status(424).json(_response);
+            SAVE_LOG(_response);
             return;
         }
 
@@ -171,19 +186,19 @@ router.post ('/', async (req,res) => {
                 html: emailData
             };
 
-            await transporter.sendMail(mailOptions, async (error, info) => {
-                if (!error) {
-                    _result = 'SUCCEED_USER_CREATED';
-                    res.status(200).send(_result.toString());
-                    SAVE_LOG(_result);
-                }
-            });
+            const sendMail = await transporter.sendMail(mailOptions);
+            if (sendMail) {
+                _response.result = 'SUCCEED_USER_CREATED';
+                res.status(200).json(_response);
+                SAVE_LOG(_response);
+            }
         }
         catch (err) {
             console.error(err); //SHOW ERROR FOR PM2 INSTANCE
-            _result = 'ERR_VERIFY_EMAIL_SEND_FAILED';
-            res.status(424).send(_result.toString());
-            SAVE_LOG(_result);
+            _response.result = 'ERR_VERIFY_EMAIL_SEND_FAILED';
+            _response.error = err;
+            res.status(424).json(_response);
+            SAVE_LOG(_response);
         }
     });
 });

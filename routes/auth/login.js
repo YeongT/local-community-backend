@@ -1,19 +1,22 @@
 import { Router } from 'express';
 import { pbkdf2Sync } from 'crypto';
 import { getClientIp } from 'request-ip';
-import { db_error } from '../../app.js';
+import { db_error } from '../../app';
 import { jwtSign } from '../jwtToken.js';
-import accessLog from '../../models/accesslog';
+import authLog from '../../models/authlog';
 import User from '../../models/user';
 
 const router = Router();
 
 router.post ('/', async (req,res) => {
+    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+
     /**
      * CHECK DATABASE STATE
      */
     if (!(db_error == null)) {
-        res.status(500).send('ERR_DATABASE_NOT_CONNECTED');
+        _response.result = 'ERR_DATABASE_NOT_CONNECTED';
+        res.status(500).json(_response);
         return;
     }
 
@@ -25,7 +28,8 @@ router.post ('/', async (req,res) => {
           password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/
     
     if (!(email && password && email_chk.test(email) && password_chk.test(password))) {
-        res.status(412).send('ERR_DATA_FORMAT_INVALID');
+        _response.result = 'ERR_DATA_FORMAT_INVALID';
+        res.status(412).json(_response);
         return;
     }  
 
@@ -34,7 +38,8 @@ router.post ('/', async (req,res) => {
      */
     const _user = await User.findOne({"email" : email});
     if (!_user) {
-        res.status(409).send('ERR_USER_NOT_FOUND');
+        _response.result = 'ERR_USER_NOT_FOUND';
+        res.status(409).json(_response);
         return;
     }
 
@@ -44,14 +49,14 @@ router.post ('/', async (req,res) => {
     require('moment-timezone');
     const moment = require('moment');
     moment.tz.setDefault("Asia/Seoul");
-    const SAVE_LOG = (__result) => {
-        const createLog = new accessLog ({
+    const SAVE_LOG = (_response) => {
+        const createLog = new authLog ({
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
             causedby : email,
             originip : getClientIp(req),
             category : 'LOGIN',
             details : req.body,
-            result : `${_result}` 
+            result : _response 
         });
         
         createLog.save(async (err) => {
@@ -63,20 +68,19 @@ router.post ('/', async (req,res) => {
     /**
      * COMPARE DB_PASSWORD WITH PROVIDED PASSWORD
      */
-    var _result = 'ERR_SERVER_FAILED_TEMPORARILY';
     const encryptPassword = pbkdf2Sync(password, _user.salt, 100000, 64, 'SHA512');
     req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
     if (encryptPassword.toString("base64") != _user.password) {
-      _result = 'ERR_USER_AUTH_FAILED';
-      res.status(409).send(_result);
-      SAVE_LOG(_result);
+      _response.result = 'ERR_USER_AUTH_FAILED';
+      res.status(409).json(_response);
+      SAVE_LOG(_response);
       return;
     }
 
     /**
      * UPDATE LAST_LOGIN FIELD
      */
-    _result = 'SUCCED_USER_LOGIN';
+    _response.result = 'SUCCEED_USER_LOGIN';
     const update = await User.updateOne({"email": email }, {"lastlogin" : moment().format('YYYY-MM-DD HH:mm:ss')});
     if (!update) console.error(update);
 
@@ -87,14 +91,15 @@ router.post ('/', async (req,res) => {
     _user.salt = undefined;
     _user.__v = undefined;
     const jwtresult = jwtSign(_user);
-    if (!(jwtresult)) {
-      _result = 'ERR_JWT_GENERATE_FAILED';
-      res.status(500).send(_result);
-      SAVE_LOG(_result);
+    if (!jwtresult) {
+      _response.result = 'ERR_JWT_GENERATE_FAILED';
+      res.status(500).json(_response);
+      SAVE_LOG(_response);
       return;
     }
-    res.status(200).send(jwtresult);
-    SAVE_LOG(_result);
+    _response.token = jwtresult;
+    res.status(200).json(_response);
+    SAVE_LOG(_response);
 });
 
 

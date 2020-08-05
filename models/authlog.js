@@ -1,13 +1,13 @@
 import { model, Schema } from 'mongoose';
 
-const accesslog = new Schema({
+const authlog = new Schema({
     timestamp: String,
     causedby : String,
     originip : String,
     category : String,
     details : Object,
-    result: String,
+    result: Object,
     memo: String
 });
 
-export default model('accessLog', accesslog);
+export default model('authLog', authlog);
