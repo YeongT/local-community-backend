@@ -14,7 +14,27 @@
     }
   },
   "host": "api.hakbong.me",
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "User Authentification API"
+    },
+    {
+      "name": "post",
+      "description": "Community SNS API"
+    }
+  ],
   "basePath": "/",
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
   "schemes": [
     "https"
   ],
@@ -96,6 +116,12 @@
           },
           "500": {
             "description": "unknown server error occured (cause of network status)"
+          },
+          "default": {
+            "description": "default reponse model",
+            "schema": {
+              "$ref": "#/definitions/apiResult"
+            }
           }
         }
       }
@@ -224,9 +250,100 @@
           }
         }
       }
+    },
+    "/post/new_article": {
+      "post": {
+        "tags": [
+          "post"
+        ],
+        "summary": "Post New Article",
+        "description": "api node for posting new article",
+        "operationId": "newarticle",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "userjwt",
+            "in": "formData",
+            "description": "jwttoken of article owner",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "target",
+            "in": "formData",
+            "description": "community id for article",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "in": "formData",
+            "description": "title of article",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "text",
+            "in": "formData",
+            "description": "content of article",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "formData",
+            "description": "tags of article",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "picture",
+            "in": "formData",
+            "description": "pictures of article",
+            "type": "string"
+          },
+          {
+            "name": "link",
+            "in": "formData",
+            "description": "links of article",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "test"
+          },
+          "409": {
+            "description": "userjwt is invalid to post article"
+          },
+          "412": {
+            "description": "data user provided doesn't satisfy format."
+          },
+          "500": {
+            "description": "unknown server error occured (cause of network status)"
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "apiResult": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
     "UserInfo": {
       "type": "object",
       "properties": {
