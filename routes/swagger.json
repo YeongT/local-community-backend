@@ -166,6 +166,12 @@
           },
           "500": {
             "description": "unknown server error occured (cause of network status)"
+          },
+          "default": {
+            "description": "default reponse model",
+            "schema": {
+              "$ref": "#/definitions/apiResult"
+            }
           }
         }
       }
@@ -203,7 +209,10 @@
         ],
         "responses": {
           "200": {
-            "description": "user login succeed and json token published"
+            "description": "user login succeed and json token published",
+            "schema": {
+              "$ref": "#/definitions/apiLoginResult"
+            }
           },
           "409": {
             "description": "account user provided not exist"
@@ -213,6 +222,12 @@
           },
           "500": {
             "description": "unknown server error occured (cause of network status)"
+          },
+          "default": {
+            "description": "default reponse model",
+            "schema": {
+              "$ref": "#/definitions/apiResult"
+            }
           }
         }
       }
@@ -317,16 +332,22 @@
         ],
         "responses": {
           "200": {
-            "description": "test"
+            "description": "article posted successfully."
           },
           "409": {
-            "description": "userjwt is invalid to post article"
+            "description": "userjwt is invalid to post article."
           },
           "412": {
             "description": "data user provided doesn't satisfy format."
           },
           "500": {
             "description": "unknown server error occured (cause of network status)"
+          },
+          "default": {
+            "description": "default reponse model",
+            "schema": {
+              "$ref": "#/definitions/apiResult"
+            }
           }
         }
       }
@@ -340,6 +361,17 @@
           "type": "string"
         },
         "error": {
+          "type": "string"
+        }
+      }
+    },
+    "apiLoginResult": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string"
+        },
+        "token": {
           "type": "string"
         }
       }
