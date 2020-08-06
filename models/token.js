@@ -6,6 +6,8 @@ const token = new Schema({
   token: String,
   created: String,
   expired: String
+}, {
+  versionKey: false
 });
 
 export default model('token', token);
