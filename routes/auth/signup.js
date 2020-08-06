@@ -46,7 +46,7 @@ router.post ('/', async (req,res) => {
     /**
      * CHECK WHETHER PROVIDED POST DATA IS VALID
      */
-    const { email,password,name,gender,phone,areaString } = req.body;
+    const { email,password,name,gender,phone, areaString } = req.body;
     const email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
           password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/,
           phone_chk = /^(?:(010-?\d{4})|(01[1|6|7|8|9]-?\d{3,4}))-?\d{4}$/,
@@ -62,21 +62,22 @@ router.post ('/', async (req,res) => {
         res.status(400).json(_response);
         return;   
     }
-    var area = "THIS IS DEFAULT AREA OBEJCT";
-    try {
-        area = JSON.parse(areaString);
-        if (!(area.state && area.city && area.dong)) {
-            _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
-            res.status(400).json(_response);
-            return;
-        }
-    }
-    catch (err) {
-        _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
-        _response.error = err;
-        res.status(400).json(_response);
-        return;
-    }
+
+    // var area = "THIS IS DEFAULT AREA OBEJCT";
+    // try {
+    //     area = JSON.parse(areaString);
+    //     if (!(true)) {
+    //         _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
+    //         res.status(400).json(_response);
+    //         return;
+    //     }
+    // }
+    // catch (err) {
+    //     _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
+    //     _response.error = err;
+    //     res.status(400).json(_response);
+    //     return;
+    // }
 
     /**
      * CHECK WHETHER EMAIL IS USED
@@ -116,11 +117,7 @@ router.post ('/', async (req,res) => {
         name,
         gender,
         phone: `${iv.toString('hex') + ':' + encryptPhone.toString('hex')}`,
-        area: {
-            state : `${area.state}`,
-            city : `${area.city}`,
-            dong : `${area.dong}`
-        },
+        areaString,
         salt: `${salt.toString('base64')}`,
     });
 

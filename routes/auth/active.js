@@ -42,8 +42,16 @@ router.get ('/', async (req,res) => {
     /**
      * CHECK WHETHER TOKEN IS VALID
      */
+    require('moment-timezone');
+    const moment = require('moment');
+    moment.tz.setDefault("Asia/Seoul")
     const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token });
-    if (!_token && Date.parse(_token.expired) >= moment()) {
+    if (!_token) {
+        _response.result = 'ERR_PROVIDED_TOKEN_INVALID';
+        res.status(409).json(_response);
+        return;
+    }
+    else if (Date.parse(_token.expired) < moment()) {
         _response.result = 'ERR_PROVIDED_TOKEN_INVALID';
         res.status(409).json(_response);
         return;
@@ -52,10 +60,7 @@ router.get ('/', async (req,res) => {
     /**
      * SAVE LOG FUNCTION
      */
-    const SAVE_LOG = (_result) => {
-        require('moment-timezone');
-        const moment = require('moment');
-        moment.tz.setDefault("Asia/Seoul");
+    const SAVE_LOG = (_result) => {;
         const createLog = new authLog ({
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
             causedby : email,
