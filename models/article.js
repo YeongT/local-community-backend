@@ -9,7 +9,7 @@ const Article = new Schema({
     tags : Array,
     attach : {
       picture : Array,
-      link : String
+      link : Array
     }
   },
   owner : { type: Schema.Types.ObjectId },

@@ -4,9 +4,11 @@ const router = Router();
 
 import auth from './auth';
 import list from './list';
+import post from './post';
 
 router.use('/auth',auth);
 router.use('/list',list);
+router.use('/post',post);
 
 const swaggerDefinition = require('./swagger.json');
 const swaggerJSDoc = require('swagger-jsdoc');
