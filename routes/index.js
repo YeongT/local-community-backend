@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import YAML from 'yamljs';
+import { join as pathJoin } from 'path';
+import swaggerJSDoc from 'swagger-jsdoc';
+import { serve as swServe, setup as swSetup} from 'swagger-ui-express';
+
 
 const router = Router();
 
@@ -10,16 +15,13 @@ router.use('/auth',auth);
 router.use('/list',list);
 router.use('/post',post);
 
-const swaggerDefinition = require('./swagger.json');
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerDefinition = YAML.load(pathJoin(__dirname, 'swagger.yaml'));
 const options = {
     swaggerDefinition,
     apis: ['./auth/index.js', './list/index.js', './index.js']
 };
-const swaggerSpec = swaggerJSDoc(options);
 
-router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.use('/docs', swServe, swSetup(swaggerJSDoc(options)));
 router.get('/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.write('<title>Local Community API Server</title>');
