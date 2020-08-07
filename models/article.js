@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import { modRecord } from './mod_record';
 
 const Article = new Schema({
   timestamp: String,
@@ -23,7 +24,7 @@ const Article = new Schema({
       default: false
     },
     history: [
-      String
+      modRecord
     ]
   },
   suecount: {
