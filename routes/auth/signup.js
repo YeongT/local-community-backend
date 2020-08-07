@@ -59,25 +59,9 @@ router.post ('/', async (req,res) => {
     }
     if (!(email_chk.test(email) && password_chk.test(password) && name_chk.test(name) && phone_chk.test(phone))) { 
         _response.result = 'ERR_DATA_FORMAT_INVALID';
-        res.status(400).json(_response);
+        res.status(412).json(_response);
         return;   
     }
-
-    // var area = "THIS IS DEFAULT AREA OBEJCT";
-    // try {
-    //     area = JSON.parse(areaString);
-    //     if (!(true)) {
-    //         _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
-    //         res.status(400).json(_response);
-    //         return;
-    //     }
-    // }
-    // catch (err) {
-    //     _response.result = 'ERR_AREA_DATA_FORMAT_INVALID';
-    //     _response.error = err;
-    //     res.status(400).json(_response);
-    //     return;
-    // }
 
     /**
      * CHECK WHETHER EMAIL IS USED

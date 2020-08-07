@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { getClientIp } from 'request-ip';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
-import Article from '../../models/article';
-import postLog from '../../models/postlog';
+import Article from '../../models/post/article';
+import postLog from '../../models/post/postlog';
 
 const router = Router();
 router.post ('/', async (req,res) => {
@@ -52,7 +52,7 @@ router.post ('/', async (req,res) => {
     }
     
     /**
-     * SAVE ARTICLE INFO ON DATABASE
+     * GENERATE ARTICLE OBJECT
      */
     require('moment-timezone');
     const moment = require('moment');
@@ -88,6 +88,9 @@ router.post ('/', async (req,res) => {
         });
     }
 
+    /**
+     * SAVE ARTICLE INFO ON DATABASE
+     */
     await postArticle.save(async (err) => {
         if (err) {
             _response.result = 'ERR_POST_ARTICLE_FAILED';

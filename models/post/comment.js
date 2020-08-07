@@ -1,18 +1,20 @@
 import { model, Schema } from 'mongoose';
+import { commentEditLog as editLog } from './recordlog';
 
-const Article = new Schema({
+const Comment = new Schema({
   timestamp: String,
   target: {
-    type: Schema.Types.ObjectId
+    ispost: {
+      type: Boolean,
+      default: false
+    },
+    target: {
+      type: Schema.Types.ObjectId
+    }
   },
   content: {
-    title: String,
     text: String,
-    tags: Array,
-    attach: {
-      picture: Array,
-      link: Array
-    }
+    picture: Array
   },
   owner: {
     type: Schema.Types.ObjectId
@@ -23,7 +25,7 @@ const Article = new Schema({
       default: false
     },
     history: [
-      String
+      editLog
     ]
   },
   suecount: {
@@ -38,4 +40,4 @@ const Article = new Schema({
   versionKey: false
 });
 
-export default model('article', Article);
+export default model('comment', Comment );
