@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { getClientIp } from 'request-ip';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
-import Article from '../../models/article';
-import postLog from '../../models/postlog';
+import Article from '../../models/post/article';
+import postLog from '../../models/post/postlog';
 
 const router = Router();
 router.post ('/', async (req,res) => {
