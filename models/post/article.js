@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { modRecord } from './mod_record';
+import { articleEditLog as editLog } from './recordlog';
 
 const Article = new Schema({
   timestamp: String,
@@ -24,7 +24,7 @@ const Article = new Schema({
       default: false
     },
     history: [
-      modRecord
+      editLog
     ]
   },
   suecount: {

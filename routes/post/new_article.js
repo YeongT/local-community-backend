@@ -52,7 +52,7 @@ router.post ('/', async (req,res) => {
     }
     
     /**
-     * SAVE ARTICLE INFO ON DATABASE
+     * GENERATE ARTICLE OBJECT
      */
     require('moment-timezone');
     const moment = require('moment');
@@ -88,6 +88,9 @@ router.post ('/', async (req,res) => {
         });
     }
 
+    /**
+     * SAVE ARTICLE INFO ON DATABASE
+     */
     await postArticle.save(async (err) => {
         if (err) {
             _response.result = 'ERR_POST_ARTICLE_FAILED';

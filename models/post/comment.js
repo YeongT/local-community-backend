@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import { commentEditLog as editLog } from './recordlog';
 
 const Comment = new Schema({
   timestamp: String,
@@ -13,10 +14,7 @@ const Comment = new Schema({
   },
   content: {
     text: String,
-    attach: {
-      picture: Array,
-      link: String,
-    }
+    picture: Array
   },
   owner: {
     type: Schema.Types.ObjectId
@@ -26,9 +24,9 @@ const Comment = new Schema({
       type: Boolean,
       default: false
     },
-    target: {
-      type: Schema.Types.ObjectId
-    }
+    history: [
+      editLog
+    ]
   },
   suecount: {
     type: Number,
