@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
 import mongoose from 'mongoose';
+import Article from '../../models/post/article';
 import Comment from '../../models/post/comment';
 
 const router = Router();
@@ -21,8 +22,8 @@ router.post ('/', async (req,res) => {
      * VERIFY JWT TOKEN
      */
     var { target } = req.body;
-    const { userjwt } = req.body;
-    if (!(userjwt && target)) {
+    const { userjwt, objectType } = req.body;
+    if (!(userjwt && objectType && target)) {
         _response.result = 'ERR_DATA_NOT_PROVIDED';
         res.status(412).json(_response);
         return;
@@ -52,35 +53,30 @@ router.post ('/', async (req,res) => {
     }
    
     /**
-     * GET COMMENT OBJECT WHOSE TARGET IS PROVIDED ID 
-     * REMOVE USELESS FILED TO SAVE TRAFFIC
+     * GET TARGET OBJECT
      */
-    const _comment = await Comment.find({
-        "target": target,
-        "visible": true,
-        "suecount": {
-            "$lte": 5
-        }
-    }, {
-        "target": 0,
-        "modify.history": 0,
-        "suecount": 0,
-        "visible": 0
-    }).sort({
-        "_id": -1
-    });
-    if (!_comment) {
-        _response.result = 'ERR_LOADING_TARGET_COMMENT';
-        res.status(500).json(_response);
+    var _editlog = undefined,
+        condition = {
+            "_id": target,
+            "visible": true,
+            "suecount": {
+                "$lte": 5
+            }
+        };
+    if (objectType == "article") _editlog = await Article.findOne(condition);
+    if (objectType == "comment") _editlog = await Comment.findOne(condition);
+    if (!_editlog) {
+        _response.result = 'ERR_ACCESS_TARGET_OBJECT_FAILED';
+        res.status(409).json(_response);
         return;
     }
 
     /**
      * RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
      */
-    _response.result = _comment.length ? 'SUCCEED_COMMENTS_LOADED' : 'COULD_NOT_FOUND_ANY_COMMENT';
-    _response.count = _comment.length;
-    _response.comments = _comment
+    _response.result = _editlog.modify.ismodified ? 'SUCCEED_EDITLOG_LOADED' : 'OBJECT_HAD_NOT_BEEN_MODIFIED';
+    _response.count = _editlog.modify.history.length;
+    _response.history = _editlog.modify.history;
     res.status(200).json(_response);
 });
 
