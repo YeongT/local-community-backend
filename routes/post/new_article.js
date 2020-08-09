@@ -34,9 +34,10 @@ router.post ('/', async (req,res) => {
         if (picture) picture = JSON.parse(picture);
         if (link) link = JSON.parse(link);
     }
-    catch (error) {
-        console.error(error);
+    catch (err) {
+        console.error(err);
         _response.result = 'ERR_DATA_ARRAY_FORMAT_INVALID';
+        _response.error = err.toString();
         res.status(412).json(_response);
         return;
     }
@@ -47,7 +48,7 @@ router.post ('/', async (req,res) => {
     const jwtuser = await jwtgetUser(userjwt);
     if (!jwtuser.user) {
         _response.result = jwtuser.error;
-        res.status(409).json(_response);
+        res.status(401).json(_response);
         return;
     }
     

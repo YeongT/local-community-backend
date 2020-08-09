@@ -14,10 +14,10 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: api.hakbong.me
 tags:
-- name: "user"
-  description: "User Authentification API"
-- name: "post"
-  description: "Community SNS API"
+  - name: "user"
+    description: "User Authentification API"
+  - name: "post"
+    description: "Community SNS API"
 basePath: /
 schemes:
   - https
@@ -234,7 +234,7 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: article posted successfully.
-        '409':
+        '401':
           description: userjwt is invalid to post article.
         '412':
           description: data user provided doesn't satisfy format.
@@ -279,8 +279,46 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: comment posted successfully.
-        '409':
+        '401':
           description: userjwt is invalid to post comment.
+        '412':
+          description: data user provided doesn't satisfy format.
+        '500':
+          description: unknown server error occured (cause of network status)
+  /post/load-comments:
+    post:
+      tags:
+        - post
+      summary: Load Comments From Article Or Comment
+      description: api node for loading comments in comment or article.
+      operationId: loadcomment
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: userjwt
+          in: formData
+          description: jwttoken of executer
+          required: true
+          type: string
+        - name: target
+          in: formData
+          description: comment or article id for comment
+          required: true
+          type: string
+      responses:
+        default:
+            description: default reponse model
+            schema:
+              $ref: "#/definitions/apiResult"
+        '200':
+          description: loading comments process finished.
+          schema:
+              $ref: "#/definitions/resComments"
+        '409':
+          description: objectid user provided doesn't existed.
         '412':
           description: data user provided doesn't satisfy format.
         '500':
@@ -312,8 +350,7 @@ definitions:
       name:
         type: string
       gender:
-        type: integer
-        format: int32
+        type: number
       phone:
         type: string
       lastlogin:
@@ -321,11 +358,41 @@ definitions:
         format: date
         pattern: 'yyyy-MM-dd hh:mm:ss'
       created:
-        type: integer
-        format : int32
+        type: number
       expired:
-        type: integer
-        format : int32
+        type: number
+  resComments:
+    type: object
+    properties:
+      result:
+        type: string
+      count:
+        type: number
+      comments:
+        type: array
+        items:
+          type: object
+          properties:
+            timestamp:
+              type: string
+            content:
+              type: object
+              properties:
+                text:
+                  type: string
+                picture:
+                  type: array
+                  items:
+                    type: string
+            owner: 
+              type: string
+            modify:
+              type: object
+              properties:
+                ismodified:
+                  type: boolean
+                  default: false
+  
 externalDocs:
   description: Find out more about our team
   url: 'https://implude.com/teams/aidu'
