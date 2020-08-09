@@ -73,9 +73,9 @@ paths:
         '200':
           description: account generated and verification email sent.
         '409':
-          description: email user provided duplicated.
+          description: email client provided duplicated.
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
         '424':
           description: >-
             account generated but verification email wasn't sent.<br> please
@@ -111,9 +111,9 @@ paths:
         '200':
           description: account email verification finished.
         '409':
-          description: account user provided not exist or already activated.
+          description: account client provided not exist or already activated.
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
   /auth/login:
@@ -149,9 +149,9 @@ paths:
           schema:
             $ref: "#/definitions/apiLoginResult"
         '409':
-          description: account user provided not exist
+          description: account client provided not exist
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
   /auth/jwtdecode:
@@ -237,7 +237,7 @@ paths:
         '401':
           description: userjwt is invalid to post article.
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
   /post/new-comment:
@@ -282,14 +282,14 @@ paths:
         '401':
           description: userjwt is invalid to post comment.
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
   /post/load-comments:
     post:
       tags:
         - post
-      summary: Load Comments From Article Or Comment
+      summary: Load Comments From Article or Comment
       description: api node for loading comments in comment or article.
       operationId: loadcomment
       consumes:
@@ -317,10 +317,52 @@ paths:
           description: loading comments process finished.
           schema:
               $ref: "#/definitions/resComments"
-        '409':
-          description: objectid user provided doesn't existed.
         '412':
-          description: data user provided doesn't satisfy format.
+          description: data client provided doesn't satisfy format.
+        '500':
+          description: unknown server error occured (cause of network status)
+  /post/load-editlogs:
+    post:
+      tags:
+        - post
+      summary: Load Edit History From Article or Comment
+      description: api node for loading editlogs in comment or article.
+      operationId: loadeditlog
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: userjwt
+          in: formData
+          description: jwttoken of executer
+          required: true
+          type: string
+        - name: objectType
+          in: formData
+          description: select object type which you want to query.
+          type: string
+          enum: ["article","comment"]
+          required: true
+        - name: target
+          in: formData
+          description: comment or article id for loading history.
+          required: true
+          type: string
+      responses:
+        default:
+            description: default reponse model
+            schema:
+              $ref: "#/definitions/apiResult"
+        '200':
+          description: loading comments process finished.
+          schema:
+              $ref: "#/definitions/resEditlogs"
+        '409':
+          description: article or comment object client provided doesn't exist.
+        '412':
+          description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
 definitions:
@@ -392,7 +434,23 @@ definitions:
                 ismodified:
                   type: boolean
                   default: false
-  
+  resEditlogs:
+    type: object
+    properties:
+      result:
+        type: string
+      count:
+        type: number
+      history:
+        type: array
+        items:
+          type: object
+          properties:
+            timestamp:
+              type: string
+            content:
+              type: object
+              example: object
 externalDocs:
   description: Find out more about our team
   url: 'https://implude.com/teams/aidu'
