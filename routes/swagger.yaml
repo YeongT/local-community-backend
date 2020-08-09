@@ -13,17 +13,12 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: api.hakbong.me
-securityDefinitions:
-  basicAuth:
-    type: basic
 tags:
 - name: "user"
   description: "User Authentification API"
 - name: "post"
   description: "Community SNS API"
 basePath: /
-security: 
-  - basicAuth: []
 schemes:
   - https
 paths:
@@ -64,7 +59,7 @@ paths:
           in: formData
           description: gender of account
           required: true
-          type: string
+          type: number
         - name: areaString
           in: formData
           type: string
@@ -77,8 +72,6 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: account generated and verification email sent.
-        '400':
-          description: data user provided format invalid.
         '409':
           description: email user provided duplicated.
         '412':
@@ -266,14 +259,7 @@ definitions:
     type: object
     properties:
       area:
-        type: object
-        properties:
-          state:
-            type: string
-          city:
-            type: string
-          dong:
-            type: string
+        type: string
       enable: 
         type: boolean
       email:
