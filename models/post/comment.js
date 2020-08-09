@@ -4,13 +4,7 @@ import { commentEditLog as editLog } from './recordlog';
 const Comment = new Schema({
   timestamp: String,
   target: {
-    ispost: {
-      type: Boolean,
-      default: false
-    },
-    target: {
-      type: Schema.Types.ObjectId
-    }
+    type: Schema.Types.ObjectId
   },
   content: {
     text: String,
