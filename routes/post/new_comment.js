@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getClientIp } from 'request-ip';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
+import moment from 'moment';
 import Comment from '../../models/post/comment';
 import postLog from '../../models/post/postlog';
 
@@ -53,9 +54,6 @@ router.post ('/', async (req,res) => {
     /**
      * GENERATE COMMENT OBJECT
      */
-    require('moment-timezone');
-    const moment = require('moment');
-    moment.tz.setDefault("Asia/Seoul");
     const postComment = new Comment({
         timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
         target,

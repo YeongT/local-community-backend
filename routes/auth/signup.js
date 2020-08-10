@@ -5,6 +5,7 @@ import { createTransport } from 'nodemailer';
 import { getClientIp } from 'request-ip';
 import { readFileSync } from 'fs';
 import { db_error } from '../../app';
+import moment from 'moment';
 import Token from '../../models/token';
 import authLog from '../../models/authlog';
 import User from '../../models/user';
@@ -108,9 +109,6 @@ router.post ('/', async (req,res) => {
     /**
      * SAVE LOG FUNCTION
      */
-    require('moment-timezone');
-    const moment = require('moment');
-    moment.tz.setDefault("Asia/Seoul");
     const SAVE_LOG = (_response) => {
         const createLog = new authLog ({
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 

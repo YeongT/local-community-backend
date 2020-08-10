@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { getClientIp } from 'request-ip';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
+import { genEditLog } from '../../models/post/recordlog'
 import moment from 'moment';
+import mongoose from 'mongoose';
 import Article from '../../models/post/article';
 import postLog from '../../models/post/postlog';
 
@@ -19,8 +21,8 @@ router.post ('/', async (req,res) => {
         return;
     }
 
-    const { userjwt, target, title, text } = req.body;
-    var { tags, picture, link } = req.body;
+    const { userjwt, title, text } = req.body;
+    var { target, tags, picture, link } = req.body;
     if (!(userjwt && target && title && text && tags)) {
         _response.result = 'ERR_DATA_NOT_PROVIDED';
         res.status(412).json(_response);
@@ -44,7 +46,7 @@ router.post ('/', async (req,res) => {
     }
 
     /**
-     * VERIFY JWT TOKEN && GET USER OBJECT
+     * VERIFY JWT TOKEN && GET ARTICLE OBJECT
      */
     const jwtuser = await jwtgetUser(userjwt);
     if (!jwtuser.user) {
@@ -52,24 +54,31 @@ router.post ('/', async (req,res) => {
         res.status(401).json(_response);
         return;
     }
-    
-    /**
-     * GENERATE ARTICLE OBJECT
-     */
-    const postArticle = new Article({
-        timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
-        target,
-        content: {
-            title,
-            text,
-            tags,
-            attach: {
-                picture,
-                link
-            }
-        },
-        owner: jwtuser.user._id
+
+    try {
+        target = mongoose.Types.ObjectId(target);
+    }
+    catch (err) {
+        console.error(err);
+        _response.result = 'ERR_TARGET_ID_FORMAT_INVALID';
+        _response.error = err.toString();
+        res.status(412).json(_response);
+        return;
+    }
+   
+    const _article = await Article.findOne({
+        "_id": target,
+        "owner": jwtuser.user._id,
+        "visible": true,
+        "suecount": {
+            "$lte": 5
+        }
     });
+    if (!_article) {
+        _response.result = 'ERR_LOADING_TARGET_ARTICLE_FAILED';
+        res.status(409).json(_response);
+        return;
+    }
 
     /**
      * SAVE LOG FUNCTION
@@ -79,8 +88,8 @@ router.post ('/', async (req,res) => {
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
             causeby : jwtuser.user.email,
             originip : getClientIp(req),
-            category : 'NEW_ARTICLE',
-            details : postArticle.content
+            category : 'MOD_ARTICLE',
+            details : _article.content
         });
         createLog.save((err) => {
             if (err) console.error(err);
@@ -88,17 +97,38 @@ router.post ('/', async (req,res) => {
     }
 
     /**
+     * UPDATE ARTICLE OBJECT USING PREVIOUS OBJECT
+     */
+    _article.modify.ismodified = true;
+    _article.modify.history.unshift(genEditLog(_article.content));
+    _article.content = {
+        title,
+        text,
+        tags,
+        attach : {
+            picture,
+            link
+        }
+    }
+
+    /**
      * SAVE ARTICLE INFO ON DATABASE
      */
-    await postArticle.save(async (err) => {
+    await Article.updateOne({
+        "_id": target
+    }, {
+        "modify": _article.modify,
+        "content": _article.content,
+        "timestamp" : moment().format('YYYY-MM-DD HH:mm:ss')
+    }, async (err) => {
         if (err) {
-            _response.result = 'ERR_POST_ARTICLE_FAILED';
+            _response.result = 'ERR_EDIT_ARTICLE_FAILED';
             _response.error = err;
             res.status(500).json(_response);
             return;
         }
 
-        _response.result = 'SUCCEED_ARTICLE_POSTED';
+        _response.result = 'SUCCEED_ARTICLE_EDITED';
         res.status(200).json(_response);
         SAVE_LOG(_response);
     });
