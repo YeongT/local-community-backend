@@ -365,6 +365,114 @@ paths:
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
+  /post/mod-article:
+    post:
+      tags:
+        - post
+      summary: Edit Exist Article
+      description: api node for editing article
+      operationId: modarticle
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: userjwt
+          in: formData
+          description: jwttoken of article owner
+          required: true
+          type: string
+        - name: target
+          in: formData
+          description: object id which you want to modify
+          required: true
+          type: string
+        - name: title
+          in: formData
+          description: title of article
+          required: true
+          type: string
+        - name: text
+          in: formData
+          description: content of article
+          required: true
+          type: string
+        - name: tags
+          in: formData
+          description: tags of article
+          required: true
+          type: string
+        - name: picture
+          in: formData
+          description: pictures of article
+          type: string
+        - name: link
+          in: formData
+          description: links of article
+          type: string
+      responses:
+        default:
+            description: default reponse model
+            schema:
+              $ref: "#/definitions/apiResult"
+        '200':
+          description: article edited successfully.
+        '401':
+          description: userjwt is invalid to edit article.
+        '409':
+          description: comment object client provided doesn't exist.
+        '412':
+          description: data client provided doesn't satisfy format.
+        '500':
+          description: unknown server error occured (cause of network status)
+  /post/mod-comment:
+    post:
+      tags:
+        - post
+      summary: Edit Exist Comment
+      description: api node for editing article
+      operationId: modcomment
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: userjwt
+          in: formData
+          description: jwttoken of comment owner
+          required: true
+          type: string
+        - name: target
+          in: formData
+          description: object id which you want to modify
+          required: true
+          type: string
+        - name: text
+          in: formData
+          description: content of comment
+          required: true
+          type: string
+        - name: picture
+          in: formData
+          description: pictures of comment
+          type: string
+      responses:
+        default:
+            description: default reponse model
+            schema:
+              $ref: "#/definitions/apiResult"
+        '200':
+          description: comment edited successfully.
+        '401':
+          description: userjwt is invalid to edit comment.
+        '409':
+          description: comment object client provided doesn't exist.
+        '412':
+          description: data client provided doesn't satisfy format.
+        '500':
+          description: unknown server error occured (cause of network status)
 definitions:
   apiResult:
     type: object

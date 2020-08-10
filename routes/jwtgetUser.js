@@ -27,8 +27,8 @@ const jwtgetUser = async (jwtToken) => {
         _response.error = 'ERR_JWT_RESULT_GET_USER_FAILED';
         return _response;
     }
-    _response.error = null;
     _response.user = user;
+    _response.error = null;
     return _response;
 }
 
