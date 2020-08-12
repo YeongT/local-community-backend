@@ -1,5 +1,5 @@
-import { model, Schema } from 'mongoose';
-import { articleEditLog as editLog } from './recordlog';
+import { model, Schema } from "mongoose";
+import { articleEditLog as editLog } from "./recordlog";
 
 const Article = new Schema({
   timestamp: String,
@@ -39,4 +39,4 @@ const Article = new Schema({
   versionKey: false
 });
 
-export default model('article', Article);
+export default model("article", Article);

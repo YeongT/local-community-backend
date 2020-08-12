@@ -1,4 +1,6 @@
-import { Schema } from 'mongoose';
+import { Schema } from "mongoose";
+import moment from "moment";
+import timezone from "moment-timezone";
 
 const articleEditLog = new Schema({
   timestamp: String,
@@ -28,14 +30,12 @@ const commentEditLog = new Schema({
 });
 
 const genEditLog = (content) => {
-  require('moment-timezone');
-  const moment = require('moment');
   moment.tz.setDefault("Asia/Seoul");
   const object = {
-    timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+    timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
     content
-  }
+  };
   return object;
-}
+};
 
 export { articleEditLog, commentEditLog, genEditLog };

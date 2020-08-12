@@ -1,20 +1,20 @@
-import { Router } from 'express';
-import { getClientIp } from 'request-ip';
-import { db_error } from '../../app';
-import moment from 'moment';
-import authLog from '../../models/authlog';
-import Token from '../../models/token';
-import User from '../../models/user';
+import { Router } from "express";
+import { getClientIp } from "request-ip";
+import { db_error } from "../../app";
+import moment from "moment";
+import authLog from "../../models/authlog";
+import Token from "../../models/token";
+import User from "../../models/user";
 
 const router = Router();
-router.get ('/', async (req,res) => {
+router.get ("/", async (req,res) => {
     var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
 
     /**
      * CHECK DATABASE STATE
      */
-    if (!(db_error == null)) {
-        _response.result = 'ERR_DATABASE_NOT_CONNECTED';
+    if (!(db_error === null)) {
+        _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
     }
@@ -25,7 +25,7 @@ router.get ('/', async (req,res) => {
     const { email, token} = req.query;
     const email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
     if (!(email && email_chk.test(email) && token)) {
-        _response.result = 'ERR_DATA_FORMAT_INVALID';
+        _response.result = "ERR_DATA_FORMAT_INVALID";
         res.status(412).json(_response);
         return;
     }
@@ -35,7 +35,7 @@ router.get ('/', async (req,res) => {
      */
     const user = await User.findOne({"email" : email, "enable" : false});
     if (!user) {
-        _response.result = 'ERR_USER_NOT_FOUND';
+        _response.result = "ERR_USER_NOT_FOUND";
         res.status(409).json(_response);
         return;
     }
@@ -45,12 +45,12 @@ router.get ('/', async (req,res) => {
      */
     const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token });
     if (!_token) {
-        _response.result = 'ERR_PROVIDED_TOKEN_INVALID';
+        _response.result = "ERR_PROVIDED_TOKEN_INVALID";
         res.status(409).json(_response);
         return;
     }
     else if (Date.parse(_token.expired) < moment()) {
-        _response.result = 'ERR_PROVIDED_TOKEN_INVALID';
+        _response.result = "ERR_PROVIDED_TOKEN_INVALID";
         res.status(409).json(_response);
         return;
     }
@@ -58,12 +58,12 @@ router.get ('/', async (req,res) => {
     /**
      * SAVE LOG FUNCTION
      */
-    const SAVE_LOG = (_result) => {;
+    const SAVE_LOG = (_result) => {
         const createLog = new authLog ({
-            timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
+            timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,
             originip : getClientIp(req),
-            category : 'ACTIVATE',
+            category : "ACTIVATE",
             details : _token,
             result : _result
         });
@@ -78,7 +78,7 @@ router.get ('/', async (req,res) => {
      */
     const verify = await User.updateOne( {"email" : email , "enable" : false }, {"enable" :  true} );
     if (!verify) {
-        _response.result = 'ERR_USER_UPDATE_FAILED';
+        _response.result = "ERR_USER_UPDATE_FAILED";
         res.status(500).json(_response);
         SAVE_LOG(_response);
         return;
@@ -88,7 +88,7 @@ router.get ('/', async (req,res) => {
      * ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT
      */
     await Token.deleteOne({"owner" : email, "type" : "SIGNUP", "token" : token});
-    _response.result = 'SUCCEED_USER_ACTIVATED';
+    _response.result = "SUCCEED_USER_ACTIVATED";
     res.status(200).json(_response);
     SAVE_LOG(_response);
 

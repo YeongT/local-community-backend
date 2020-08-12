@@ -4,17 +4,17 @@
  * Module dependencies.
  */
 
-import { createServer } from 'https';
-import 'babel-polyfill';
-import fs from 'fs';
+import { createServer } from "https";
+import "babel-polyfill";
+import fs from "fs";
 
 
 /**
  * importing express app object from app.js file.
- * also check if '.env' file exist in config folder through checking if `app` object is not null' 
+ * also check if ".env" file exist in config folder through checking if `app` object is not null" 
  */
 
-import { app } from './app';
+import { app } from "./app";
 
 
 /**
@@ -42,13 +42,13 @@ const normalizePort = (val) => {
  */
 
 
-const port = normalizePort(process.env.PORT || '1000');
+const port = normalizePort(process.env.PORT || "1000");
 const options = {
     key: fs.readFileSync(process.env.SSL_KEY_PATH),
     cert: fs.readFileSync(process.env.SSL_CERT_PATH),
     ca: fs.readFileSync(process.env.SSL_CA_PATH)
 };
-app.set('port', port);
+app.set("port", port);
 
 /**
  * Create HTTP server with HTTPS SETTINGS.
@@ -61,17 +61,17 @@ const server = createServer(options, app);
  */
 
 const onError = (error) => {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+  const bind = typeof port === "string" ? `Pipe ${port}` : `Port ${port}`;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
+    case "EACCES":
       throw new Error(`${bind} requires elevated privileges`);
-    case 'EADDRINUSE':
+    case "EADDRINUSE":
       throw new Error(`${bind} is already in use`);
     default:
       throw error;
@@ -84,7 +84,7 @@ const onError = (error) => {
 
 const onListening = () => {
   const addr = server.address();
-  const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+  const bind = typeof addr === "string" ? `pipe ${addr}` : `port ${addr.port}`;
   console.log(`Secured API Server is Running on ${bind}`);
 };
 
@@ -93,5 +93,5 @@ const onListening = () => {
  */
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on("error", onError);
+server.on("listening", onListening);

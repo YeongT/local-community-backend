@@ -1,20 +1,19 @@
-import { Router } from 'express';
-import { getClientIp } from 'request-ip';
-import { jwtgetUser } from '../jwtgetUser';
-import { db_error } from '../../app';
-import moment from 'moment';
-import Article from '../../models/post/article';
-import postLog from '../../models/post/postlog';
+import { Router } from "express";
+import { getClientIp } from "request-ip";
+import { jwtgetUser } from "../jwtgetUser";
+import { db_error } from "../../app";
+import moment from "moment";
+import Article from "../../models/post/article";
+import postLog from "../../models/post/postlog";
 
 const router = Router();
-router.post ('/', async (req,res) => {
+router.post ("/", async (req,res) => {
     var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
-
     /**
      * CHECK DATABASE
      */
-    if (!(db_error == null)) {
-        _response.result = 'ERR_DATABASE_NOT_CONNECTED';
+    if (!(db_error === null)) {
+        _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
     }
@@ -22,7 +21,7 @@ router.post ('/', async (req,res) => {
     const { userjwt, target, title, text } = req.body;
     var { tags, picture, link } = req.body;
     if (!(userjwt && target && title && text && tags)) {
-        _response.result = 'ERR_DATA_NOT_PROVIDED';
+        _response.result = "ERR_DATA_NOT_PROVIDED";
         res.status(412).json(_response);
         return;
     }
@@ -37,7 +36,7 @@ router.post ('/', async (req,res) => {
     }
     catch (err) {
         console.error(err);
-        _response.result = 'ERR_DATA_ARRAY_FORMAT_INVALID';
+        _response.result = "ERR_DATA_ARRAY_FORMAT_INVALID";
         _response.error = err.toString();
         res.status(412).json(_response);
         return;
@@ -57,7 +56,7 @@ router.post ('/', async (req,res) => {
      * GENERATE ARTICLE OBJECT
      */
     const postArticle = new Article({
-        timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+        timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
         target,
         content: {
             title,
@@ -76,29 +75,29 @@ router.post ('/', async (req,res) => {
      */
     const SAVE_LOG = (_response) => {
         const createLog = new postLog ({
-            timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 
+            timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causeby : jwtuser.user.email,
             originip : getClientIp(req),
-            category : 'NEW_ARTICLE',
+            category : "NEW_ARTICLE",
             details : postArticle.content
         });
         createLog.save((err) => {
             if (err) console.error(err);
         });
-    }
+    };
 
     /**
      * SAVE ARTICLE INFO ON DATABASE
      */
     await postArticle.save(async (err) => {
         if (err) {
-            _response.result = 'ERR_POST_ARTICLE_FAILED';
+            _response.result = "ERR_POST_ARTICLE_FAILED";
             _response.error = err;
             res.status(500).json(_response);
             return;
         }
 
-        _response.result = 'SUCCEED_ARTICLE_POSTED';
+        _response.result = "SUCCEED_ARTICLE_POSTED";
         res.status(200).json(_response);
         SAVE_LOG(_response);
     });

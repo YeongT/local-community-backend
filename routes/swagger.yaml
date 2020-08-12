@@ -17,7 +17,7 @@ tags:
   - name: "user"
     description: "User Authentification API"
   - name: "post"
-    description: "Community SNS API"
+    description: "Community Article/Comment API"
 basePath: /
 schemes:
   - https
@@ -285,6 +285,42 @@ paths:
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
+  /post/load-articles:
+    post:
+      tags:
+        - post
+      summary: Load Articles From Community
+      description: api node for loading articles in community.
+      operationId: loadarticles
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: userjwt
+          in: formData
+          description: jwttoken of executer
+          required: true
+          type: string
+        - name: target
+          in: formData
+          description: comment or article id for comment
+          required: true
+          type: string
+      responses:
+        default:
+            description: default reponse model
+            schema:
+              $ref: "#/definitions/apiResult"
+        '200':
+          description: loading articles process finished.
+          schema:
+              $ref: "#/definitions/resArticles"
+        '412':
+          description: data client provided doesn't satisfy format.
+        '500':
+          description: unknown server error occured (cause of network status)
   /post/load-comments:
     post:
       tags:
@@ -511,6 +547,50 @@ definitions:
         type: number
       expired:
         type: number
+  resArticles:
+    type: object
+    properties:
+      result:
+        type: string
+      count:
+        type: number
+      articles:
+        type: array
+        items:
+          type: object
+          properties:
+            timestamp:
+              type: string
+            content:
+              type: object
+              properties:
+                title:
+                  type: string
+                text:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                attach:
+                  type: object
+                  properties:
+                    picture:
+                      type: array
+                      items:
+                        type: string
+                    link:
+                      type: array
+                      items:
+                        type: string
+            owner: 
+              type: string
+            modify:
+              type: object
+              properties:
+                ismodified:
+                  type: boolean
+                  default: false
   resComments:
     type: object
     properties:

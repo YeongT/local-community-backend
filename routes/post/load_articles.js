@@ -3,12 +3,11 @@ import { jwtgetUser } from "../jwtgetUser";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import Article from "../../models/post/article";
-import Comment from "../../models/post/comment";
 
 const router = Router();
 router.post ("/", async (req,res) => {
     var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
-
+    
     /**
      * CHECK DATABASE
      */
@@ -22,8 +21,8 @@ router.post ("/", async (req,res) => {
      * VERIFY JWT TOKEN
      */
     var { target } = req.body;
-    const { userjwt, objectType } = req.body;
-    if (!(userjwt && objectType && target)) {
+    const { userjwt } = req.body;
+    if (!(userjwt && target)) {
         _response.result = "ERR_DATA_NOT_PROVIDED";
         res.status(412).json(_response);
         return;
@@ -37,7 +36,7 @@ router.post ("/", async (req,res) => {
     }
 
     //# SHOULD CODING CHECK-IF-USER-IS-IN-COMMUNITY SYNTAX
-
+    
     /**
      * GENERATE TARGET OBJECT
      */
@@ -51,33 +50,39 @@ router.post ("/", async (req,res) => {
         res.status(412).json(_response);
         return;
     }
-   
+
     /**
-     * GET TARGET OBJECT
+     * GET COMMENT OBJECT WHOSE TARGET IS PROVIDED ID 
+     * REMOVE USELESS FILED TO SAVE TRAFFIC
      */
-    var _editlog = undefined,
-        condition = {
-            "_id": target,
-            "visible": true,
-            "suecount": {
-                "$lte": 5
-            }
-        };
-    if (objectType === "article") _editlog = await Article.findOne(condition);
-    if (objectType === "comment") _editlog = await Comment.findOne(condition);
-    if (!_editlog) {
-        _response.result = "ERR_ACCESS_TARGET_OBJECT_FAILED";
-        res.status(409).json(_response);
+    const _article = await Article.find({
+        target,
+        "visible": true,
+        "suecount": {
+            "$lte": 5
+        }
+    }, {
+        "target": 0,
+        "modify.history": 0,
+        "suecount": 0,
+        "visible": 0
+    }).sort({
+        "_id": -1
+    });
+    if (!_article) {
+        _response.result = "ERR_LOADING_TARGET_ARTICLE";
+        res.status(500).json(_response);
         return;
     }
 
     /**
      * RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
      */
-    _response.result = _editlog.modify.ismodified ? "SUCCEED_EDITLOG_LOADED" : "OBJECT_HAD_NOT_BEEN_MODIFIED";
-    _response.count = _editlog.modify.history.length;
-    _response.history = _editlog.modify.history;
+    _response.result = _article.length ? "SUCCEED_ARTICLES_LOADED" : "COULD_NOT_FOUND_ANY_ARTICLE";
+    _response.count = _article.length;
+    _response.articles = _article;
     res.status(200).json(_response);
 });
+
 
 export default router;
