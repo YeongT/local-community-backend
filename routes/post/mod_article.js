@@ -3,6 +3,7 @@ import { getClientIp } from 'request-ip';
 import { jwtgetUser } from '../jwtgetUser';
 import { db_error } from '../../app';
 import { genEditLog } from '../../models/post/recordlog'
+import moment from 'moment';
 import mongoose from 'mongoose';
 import Article from '../../models/post/article';
 import postLog from '../../models/post/postlog';
@@ -82,9 +83,6 @@ router.post ('/', async (req,res) => {
     /**
      * SAVE LOG FUNCTION
      */
-    require('moment-timezone');
-    const moment = require('moment');
-    moment.tz.setDefault("Asia/Seoul");
     const SAVE_LOG = (_response) => {
         const createLog = new postLog ({
             timestamp : moment().format('YYYY-MM-DD HH:mm:ss'), 

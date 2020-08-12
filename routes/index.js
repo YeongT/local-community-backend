@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import YAML from 'yamljs';
-import { join as pathJoin } from 'path';
+import moment from 'moment';
+import timezone from 'moment-timezone';
 import swaggerJSDoc from 'swagger-jsdoc';
+import { join as pathJoin } from 'path';
 import { serve as swServe, setup as swSetup} from 'swagger-ui-express';
 
 
@@ -21,6 +23,7 @@ const options = {
     apis: ['./auth/index.js', './list/index.js', './index.js']
 };
 
+moment.tz.setDefault("Asia/Seoul");
 router.use('/docs', swServe, swSetup(swaggerJSDoc(options)));
 router.get('/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });

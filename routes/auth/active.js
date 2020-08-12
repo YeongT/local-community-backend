@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getClientIp } from 'request-ip';
 import { db_error } from '../../app';
+import moment from 'moment';
 import authLog from '../../models/authlog';
 import Token from '../../models/token';
 import User from '../../models/user';
@@ -42,9 +43,6 @@ router.get ('/', async (req,res) => {
     /**
      * CHECK WHETHER TOKEN IS VALID
      */
-    require('moment-timezone');
-    const moment = require('moment');
-    moment.tz.setDefault("Asia/Seoul")
     const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token });
     if (!_token) {
         _response.result = 'ERR_PROVIDED_TOKEN_INVALID';
