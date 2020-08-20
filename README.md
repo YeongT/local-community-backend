@@ -1,0 +1,1 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/a1eca967434347b69da3877d2130ee87)](https://www.codacy.com/gh/implude/local-community-backend?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=implude/local-community-backend&amp;utm_campaign=Badge_Grade)
