@@ -58,7 +58,7 @@ router.get ("/", async (req,res) => {
     /**
      * SAVE LOG FUNCTION
      */
-    const SAVE_LOG = (_result) => {;
+    const SAVE_LOG = (_result) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,

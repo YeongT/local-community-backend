@@ -102,7 +102,7 @@ router.post ("/", async (req,res) => {
     _comment.content = {
         text,
         picture
-    }
+    };
 
     /**
      * SAVE ARTICLE INFO ON DATABASE
