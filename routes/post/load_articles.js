@@ -11,7 +11,7 @@ router.post ("/", async (req,res) => {
     /**
      * CHECK DATABASE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
@@ -56,7 +56,7 @@ router.post ("/", async (req,res) => {
      * REMOVE USELESS FILED TO SAVE TRAFFIC
      */
     const _article = await Article.find({
-        "target": target,
+        target,
         "visible": true,
         "suecount": {
             "$lte": 5

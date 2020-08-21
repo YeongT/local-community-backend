@@ -36,6 +36,6 @@ const genEditLog = (content) => {
     content
   }
   return object;
-}
+};
 
 export { articleEditLog, commentEditLog, genEditLog };

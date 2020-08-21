@@ -13,7 +13,7 @@ router.post ("/", async (req,res) => {
     /**
      * CHECK DATABASE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
@@ -78,7 +78,7 @@ router.post ("/", async (req,res) => {
         createLog.save((err) => {
             if (err) console.error(err);
         });
-    }
+    };
 
     /**
      * SAVE ARTICLE INFO ON DATABASE

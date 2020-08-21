@@ -85,7 +85,7 @@ router.post ("/", async (req,res) => {
         createLog.save((err) => {
             if (err) console.error(err);
         });
-    }
+    };
 
     /**
      * SAVE ARTICLE INFO ON DATABASE

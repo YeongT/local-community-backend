@@ -15,7 +15,7 @@ router.post ("/", async (req,res) => {
     /**
      * CHECK DATABASE STATE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
@@ -61,14 +61,14 @@ router.post ("/", async (req,res) => {
             //# HANDLE WHEN SAVE TASK FAILED
             if (err) console.log(err);
         });
-    }
+    };
 
     /**
      * COMPARE DB_PASSWORD WITH PROVIDED PASSWORD
      */
     const encryptPassword = pbkdf2Sync(password, _user.salt, 100000, 64, "SHA512");
     req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
-    if (encryptPassword.toString("base64") != _user.password) {
+    if (encryptPassword.toString("base64") !== _user.password) {
       _response.result = "ERR_USER_AUTH_FAILED";
       res.status(409).json(_response);
       SAVE_LOG(_response);

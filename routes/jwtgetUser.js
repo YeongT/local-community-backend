@@ -30,6 +30,6 @@ const jwtgetUser = async (jwtToken) => {
     _response.user = user;
     _response.error = null;
     return _response;
-}
+};
 
-export { jwtgetUser };
+export default jwtgetUser;

@@ -12,7 +12,7 @@ router.post ("/", async (req,res) => {
     /**
      * CHECK DATABASE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;
@@ -63,8 +63,8 @@ router.post ("/", async (req,res) => {
                 "$lte": 5
             }
         };
-    if (objectType == "article") _editlog = await Article.findOne(condition);
-    if (objectType == "comment") _editlog = await Comment.findOne(condition);
+    if (objectType === "article") _editlog = await Article.findOne(condition);
+    if (objectType === "comment") _editlog = await Comment.findOne(condition);
     if (!_editlog) {
         _response.result = "ERR_ACCESS_TARGET_OBJECT_FAILED";
         res.status(409).json(_response);

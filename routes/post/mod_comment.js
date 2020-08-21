@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getClientIp } from "request-ip";
 import { jwtgetUser } from "../jwtgetUser";
 import { db_error } from "../../app";
-import { genEditLog } from "../../models/post/recordlog"
+import { genEditLog } from "../../models/post/recordlog";
 import moment from "moment";
 import mongoose from "mongoose";
 import Comment from "../../models/post/comment";
@@ -15,7 +15,7 @@ router.post ("/", async (req,res) => {
     /**
      * CHECK DATABASE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;

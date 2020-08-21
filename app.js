@@ -17,7 +17,7 @@ try {
      * check if ".env" file exist in config folder through checking if `app` object is not null" && open .env file
      */
     fs.statSync(path.join(__dirname, "/config/.env"));
-    config({ path: path.join(__dirname, "/config/.env") })
+    config({ path: path.join(__dirname, "/config/.env") });
 
     app.use(cors());
     app.use(json({ limit: "10mb" }));
@@ -31,7 +31,7 @@ try {
     */
 
     const db_connect = () => {
-        const mongouri = `mongodb://${process.env.DB_USER}:${qs.escape(process.env.DB_PASSWORD)}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`
+        const mongouri = `mongodb://${process.env.DB_USER}:${qs.escape(process.env.DB_PASSWORD)}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
         connect(mongouri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
@@ -43,11 +43,11 @@ try {
             if (err) throw err;
             console.log(`[DB] Database connected via TCP/IP on port ${process.env.DB_PORT} with TLS encryption`);
         });
-    }
+    }; 
 
     db_connect();
     connection.on("disconnected",() => {
-        console.log("[DB] Database disconnect. Trying to reconnect...")
+        console.log("[DB] Database disconnect. Trying to reconnect...");
         db_error = "disconnected";
         db_connect();
     });
