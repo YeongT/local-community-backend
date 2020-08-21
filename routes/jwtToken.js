@@ -1,8 +1,8 @@
-import { sign as _sign, verify as _verify } from 'jsonwebtoken';
+import { sign as _sign, verify as _verify } from "jsonwebtoken";
 
 const jwtSign = (object) => {
     try {
-        const signed = _sign(object.toJSON(), process.env.JWT_TOKEN_SECRETKEY, {expiresIn: '5h'});
+        const signed = _sign(object.toJSON(), process.env.JWT_TOKEN_SECRETKEY, {expiresIn: "2h"});
         return signed;
     } catch (err) {
         return false;

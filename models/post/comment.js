@@ -1,5 +1,5 @@
-import { model, Schema } from 'mongoose';
-import { commentEditLog as editLog } from './recordlog';
+import { model, Schema } from "mongoose";
+import { commentEditLog as editLog } from "./recordlog";
 
 const Comment = new Schema({
   timestamp: String,
@@ -34,4 +34,4 @@ const Comment = new Schema({
   versionKey: false
 });
 
-export default model('comment', Comment );
+export default model("comment", Comment );

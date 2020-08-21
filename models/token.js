@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema } from "mongoose";
 
 const token = new Schema({
   owner: String,
@@ -10,4 +10,4 @@ const token = new Schema({
   versionKey: false
 });
 
-export default model('token', token);
+export default model("token", token);

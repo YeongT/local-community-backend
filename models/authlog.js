@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema } from "mongoose";
 
 const authlog = new Schema({
     timestamp: String,
@@ -12,4 +12,4 @@ const authlog = new Schema({
     versionKey: false
 });
 
-export default model('authLog', authlog);
+export default model("authLog", authlog);
