@@ -34,7 +34,7 @@ const genEditLog = (content) => {
   const object = {
     timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
     content
-  }
+  };
   return object;
 };
 

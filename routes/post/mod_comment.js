@@ -92,7 +92,7 @@ router.post ("/", async (req,res) => {
         createLog.save((err) => {
             if (err) console.error(err);
         });
-    }
+    };
 
     /**
      * UPDATE ARTICLE OBJECT USING PREVIOUS OBJECT

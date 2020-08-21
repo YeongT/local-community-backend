@@ -26,7 +26,7 @@ router.post ("/", async (req,res) => {
      */
     const { email, password } = req.body;
     const email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
-          password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/
+          password_chk = /^.*(?=^.{8,15}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&+=]).*$/;
     
     if (!(email && password && email_chk.test(email) && password_chk.test(password))) {
         _response.result = "ERR_DATA_FORMAT_INVALID";

@@ -121,7 +121,7 @@ router.post ("/", async (req,res) => {
         createLog.save((err) => {
             if (err) console.error(err);
         });
-    }
+    };
 
     await createUser.save(async (err) => {
         //# HANDLE WHEN SAVE TASK FAILED

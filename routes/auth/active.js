@@ -13,7 +13,7 @@ router.get ("/", async (req,res) => {
     /**
      * CHECK DATABASE STATE
      */
-    if (!(db_error == null)) {
+    if (!(db_error === null)) {
         _response.result = "ERR_DATABASE_NOT_CONNECTED";
         res.status(500).json(_response);
         return;

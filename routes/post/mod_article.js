@@ -109,7 +109,7 @@ router.post ("/", async (req,res) => {
             picture,
             link
         }
-    }
+    };
 
     /**
      * SAVE ARTICLE INFO ON DATABASE
