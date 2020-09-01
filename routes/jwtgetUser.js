@@ -32,4 +32,4 @@ const jwtgetUser = async (jwtToken) => {
     return _response;
 };
 
-export default jwtgetUser;
+export { jwtgetUser };

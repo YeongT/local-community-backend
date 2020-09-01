@@ -9,7 +9,6 @@ import postLog from "../../models/post/postlog";
 const router = Router();
 router.post ("/", async (req,res) => {
     var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
-
     /**
      * CHECK DATABASE
      */
