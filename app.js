@@ -31,7 +31,7 @@ try {
     */
 
     const db_connect = () => {
-        const mongouri = `mongodb://${process.env.DB_USER}:${qs.escape(process.env.DB_PASSWORD)}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=admin`;
+        const mongouri = `mongodb://${process.env.DB_USER}:${qs.escape(process.env.DB_PASSWORD)}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?authSource=${process.env.DB_AUTH_DB_NAME}`;
         connect(mongouri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
