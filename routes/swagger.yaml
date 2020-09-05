@@ -21,6 +21,13 @@ tags:
 basePath: /
 schemes:
   - https
+securityDefinitions:
+  JWTAuth:
+    type: apiKey
+    name: authorization
+    in: header
+  BasicAuth:
+    type: basic
 paths:
   /auth/signup:
     post:
@@ -34,6 +41,8 @@ paths:
         - application/xml
       consumes:
         - application/x-www-form-urlencoded
+      security:
+        - BasicAuth: []
       parameters:
         - name: email
           in: formData
@@ -45,6 +54,7 @@ paths:
           description: password of account
           required: true
           type: string
+          format: password
         - name: name
           in: formData
           description: nickname of account
@@ -60,6 +70,7 @@ paths:
           description: gender of account
           required: true
           type: number
+          enum: [0,1,2]
         - name: areaString
           in: formData
           type: string
@@ -72,6 +83,10 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: account generated and verification email sent.
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please apply authorization header.
         '409':
           description: email client provided duplicated.
         '412':
@@ -103,6 +118,7 @@ paths:
           description: The token for verification
           required: true
           type: string
+          format: password
       responses:
         default:
             description: default reponse model
@@ -139,6 +155,7 @@ paths:
           description: password of account
           required: true
           type: string
+          format: password
       responses:
         default:
             description: default reponse model
@@ -148,6 +165,10 @@ paths:
           description: user login succeed and json token published
           schema:
             $ref: "#/definitions/apiLoginResult"
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please apply authorization header.
         '409':
           description: account client provided not exist
         '412':
@@ -199,6 +220,7 @@ paths:
           description: jwttoken of article owner
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: community id for article 
@@ -258,6 +280,7 @@ paths:
           description: jwttoken of comment owner
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: comment or article id for comment
@@ -303,6 +326,7 @@ paths:
           description: jwttoken of executer
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: comment or article id for comment
@@ -339,6 +363,7 @@ paths:
           description: jwttoken of executer
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: comment or article id for comment
@@ -375,6 +400,7 @@ paths:
           description: jwttoken of executer
           required: true
           type: string
+          format: password
         - name: objectType
           in: formData
           description: select object type which you want to query.
@@ -419,6 +445,7 @@ paths:
           description: jwttoken of article owner
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: object id which you want to modify
@@ -480,6 +507,7 @@ paths:
           description: jwttoken of comment owner
           required: true
           type: string
+          format: password
         - name: target
           in: formData
           description: object id which you want to modify
@@ -514,9 +542,19 @@ definitions:
     type: object
     properties:
       result: 
-        type: string
-      error:
-        type: string
+        type: object
+        properties:
+          statusCode:
+            type: number
+          body:
+            type: object
+            properties:
+              msg:
+                type: string
+          token:
+            type: string
+          error:
+            type: string
   apiLoginResult:
     type: object
     properties:
