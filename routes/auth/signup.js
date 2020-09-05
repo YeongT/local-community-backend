@@ -110,8 +110,6 @@ router.post ("/", async (req,res) => {
                 html: emailData
             };
 
-            const sendMail = await transporter.sendMail(mailOptions);
-            if (!sendMail) throw("UNKNOWN_MAIL_SEND_ERROR_ACCURED");
             createUser._id = undefined;
             createUser.password = undefined;
             createUser.salt = undefined;
@@ -120,6 +118,8 @@ router.post ("/", async (req,res) => {
                 SAVE_LOG(_response);
                 return responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
             }
+            const sendMail = await transporter.sendMail(mailOptions);
+            if (!sendMail) throw("UNKNOWN_MAIL_SEND_ERROR_ACCURED");
             SAVE_LOG(_response);
             return responseFunction(200, {"msg":"SUCCEED_USER_CREATED"}, jwttoken);
         }
