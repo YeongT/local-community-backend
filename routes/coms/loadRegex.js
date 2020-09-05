@@ -13,12 +13,12 @@ const loadRegex = async () => {
         console.error(`NAME REGEX PASS : ${safe(REGEX_NAME)}`);
         throw("ERR_OCCURED_WHILE_LOADING_REGEX : SOME_REGEX_NOT_SAFE");
     }
-    return {
+    return ({
         "emailchk": REGEX_EMAIL,
         "passwdchk": REGEX_PASSWD,
         "phonechk": REGEX_PHONE,
         "namechk": REGEX_NAME
-    };
+    });
 };
 
 export default loadRegex;

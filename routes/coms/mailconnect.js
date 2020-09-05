@@ -20,6 +20,6 @@ const mailConnect = async () => {
         _response.mailerror = error;
     }
     return _response;
-}
+};
 
 export default mailConnect;
