@@ -4,30 +4,27 @@ import { decode } from "jsonwebtoken";
 const router = Router();
 
 router.get ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "token" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, token, error) => {
+        if (!(statusCode && body && token !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.token = token;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+        return true;
+    };
 
-    /**
-     * CHECK WHETHER PROVIDED POST DATA IS VALID
-     */
+    //#CHECK WHETHER PROVIDED POST DATA IS VALID
     const { token } = req.query;
-    if (!token) {
-        _response.result = "ERR_DATA_FORMAT_INVALID";
-        res.status(412).json(_response);
-        return;
-    } 
+    if (!token) return responseFunction(412, {"msg":"ERR_DATA_FORMAT_INVALID"}, null);
+    
     const _decode = decode(token);
-    if (!_decode) {
-        _response.result = "ERR_TOKEN_DECODE_FAILED";
-        res.status(500).json(_response);
-    }
-    else {
-        _decode._id = undefined;
-        _decode.__v = undefined;
-        _response.result = "SUCCEED_TOKEN_DECODED";
-        _response.decode = _decode; 
-        res.status(200).json(_response);
-    }
+    if (!_decode) return responseFunction(500, {"msg":"ERR_TOKEN_DECODE_FAILED"}, null, _decode);
+    
+    _decode._id = undefined;
+    responseFunction(200, {"msg":"SUCCEED_TOKEN_DECODED", "decode":_decode}, null);
 });
-
 
 export default router;

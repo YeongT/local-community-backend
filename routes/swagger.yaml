@@ -163,8 +163,6 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: user login succeed and json token published
-          schema:
-            $ref: "#/definitions/apiLoginResult"
         '403':
           description: >-
             Request denied because you are not authorized.<br>
@@ -555,36 +553,46 @@ definitions:
             type: string
           error:
             type: string
-  apiLoginResult:
-    type: object
-    properties:
-      result: 
-        type: string
-      token:
-        type: string
   UserInfo:
     type: object
     properties:
-      area:
-        type: string
-      enable: 
-        type: boolean
-      email:
-        type: string
-      name:
-        type: string
-      gender:
-        type: number
-      phone:
-        type: string
-      lastlogin:
-        type: string
-        format: date
-        pattern: 'yyyy-MM-dd hh:mm:ss'
-      created:
-        type: number
-      expired:
-        type: number
+      result: 
+        type: object
+        properties:
+          statusCode:
+            type: number
+          body:
+            type: object
+            properties:
+              msg:
+                type: string
+              decode:
+                type: object
+                properties:
+                  area:
+                    type: string
+                  enable: 
+                    type: boolean
+                  email:
+                    type: string
+                  name:
+                    type: string
+                  gender:
+                    type: number
+                  phone:
+                    type: string
+                  lastlogin:
+                    type: string
+                    format: date
+                    pattern: 'yyyy-MM-dd hh:mm:ss'
+                  created:
+                    type: number
+                  expired:
+                    type: number
+          token:
+            type: string
+          error:
+            type: string
   resArticles:
     type: object
     properties:

@@ -26,7 +26,7 @@ router.post ("/", async (req,res) => {
         return true;
     };
 
-    //#CHECK DATABASE AND MAIL_SERVER STATE && CHECK AUTHORIZATION HEADER USING BASIC AUTH
+    //#CHECK DATABASE AND MAIL_SERVER STATE AND CHECK AUTHORIZATION HEADER USING BASIC AUTH
     const { transporter, mailerror } = await mailConnect();
     if (!(db_error === null)) return responseFunction(500, {"msg":"ERR_DATABASE_NOT_CONNECTED"}, null);
     if (!(mailerror === null)) return responseFunction(500, {"msg":"ERR_MAIL_SERVER_NOT_CONNECTED"}, null, mailerror);
