@@ -144,6 +144,8 @@ paths:
         - application/xml
       consumes:
         - application/x-www-form-urlencoded
+      security:
+        - BasicAuth: []
       parameters:
         - name: email
           in: formData

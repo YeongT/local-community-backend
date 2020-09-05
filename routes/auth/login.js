@@ -2,7 +2,7 @@ import { Router } from "express";
 import { pbkdf2Sync } from "crypto";
 import { getClientIp } from "request-ip";
 import { db_error } from "../../app";
-import { jwtSign } from "../jwtToken.js";
+import { jwtSign } from "../coms/jwtToken.js";
 import loadRegex from "../coms/loadRegex";
 import moment from "moment";
 import authLog from "../../models/authlog";
@@ -26,7 +26,6 @@ router.post ("/", async (req,res) => {
     //#CHECK DATABASE AND CHECK AUTHORIZATION HEADER USING BASIC AUTH
     if (!(db_error === null)) return responseFunction(500, {"msg":"ERR_DATABASE_NOT_CONNECTED"}, null);
     if (!(req.headers.authorization === `Basic ${process.env.ACCOUNT_BASIC_AUTH_KEY}`)) return responseFunction(403, {"msg":"ERR_NOT_AUTHORIZED_IDENTITY"}, null);
-
     
     //#CHECK WHETHER PROVIDED POST DATA IS VALID
     const { email, password } = req.body;
@@ -46,9 +45,8 @@ router.post ("/", async (req,res) => {
             originip : getClientIp(req),
             category : "LOGIN",
             details : req.body,
-            result : _response 
+            result : _response.result
         });
-        
         createLog.save(async (err) => {
             if (err) console.log(err);
         });
@@ -62,8 +60,8 @@ router.post ("/", async (req,res) => {
     //#UPDATE LAST_LOGIN FIELD
     const _update = await User.updateOne({"email": email }, {"lastlogin" : moment().format("YYYY-MM-DD HH:mm:ss")});
     if (!_update) {
-        SAVE_LOG(_response);
-        return responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _update);
+        await responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _update);
+        return SAVE_LOG(_response);
     }
     
     //#GENERATE JWT TOKEN AND WRITE ON DOCUMENT
@@ -71,11 +69,11 @@ router.post ("/", async (req,res) => {
     _user.salt = undefined;
     const { jwttoken, tokenerror } = await jwtSign(_user);
     if (!(tokenerror === null)) {
-        SAVE_LOG(_response);
-        return responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
+        await responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
+        return SAVE_LOG(_response);
     }
-    SAVE_LOG(_response);
-    return responseFunction(200, {"msg":"SUCCEED_USER_LOGIN"}, jwttoken);
+    await responseFunction(200, {"msg":"SUCCEED_USER_LOGIN"}, jwttoken);
+    return SAVE_LOG(_response);
 });
 
 

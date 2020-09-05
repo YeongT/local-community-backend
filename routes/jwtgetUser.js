@@ -1,5 +1,5 @@
 import { decode } from "jsonwebtoken";
-import { jwtVerify } from "./jwtToken";
+import { jwtVerify } from "./coms/jwtToken";
 import User from "../models/user";
 
 const jwtgetUser = async (jwtToken) => {
