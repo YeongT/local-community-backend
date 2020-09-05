@@ -2,62 +2,43 @@ import { Router } from "express";
 import { getClientIp } from "request-ip";
 import { db_error } from "../../app";
 import moment from "moment";
+import loadRegex from "../coms/loadRegex";
 import authLog from "../../models/authlog";
 import Token from "../../models/token";
 import User from "../../models/user";
 
 const router = Router();
 router.get ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
-
-    /**
-     * CHECK DATABASE STATE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
-
-    /**
-     * CHECK WHETHER PROVIDED POST DATA IS VALID
-     */
-    const { email, token} = req.query;
-    const email_chk = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
-    if (!(email && email_chk.test(email) && token)) {
-        _response.result = "ERR_DATA_FORMAT_INVALID";
-        res.status(412).json(_response);
-        return;
-    }
-
-    /**
-     * FIND USER ON DATABASE USING EMAIL
-     */
-    const user = await User.findOne({"email" : email, "enable" : false});
-    if (!user) {
-        _response.result = "ERR_USER_NOT_FOUND";
-        res.status(409).json(_response);
-        return;
-    }
-
-    /**
-     * CHECK WHETHER TOKEN IS VALID
-     */
-    const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token });
-    if (!_token) {
-        _response.result = "ERR_PROVIDED_TOKEN_INVALID";
-        res.status(409).json(_response);
-        return;
-    }
-    else if (Date.parse(_token.expired) < moment()) {
-        _response.result = "ERR_PROVIDED_TOKEN_INVALID";
-        res.status(409).json(_response);
-        return;
-    }
+    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "token" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, token, error) => {
+        if (!(statusCode && body && token !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.token = token;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+        return true;
+    };
     
-    /**
-     * SAVE LOG FUNCTION
-     */
+    //#CHECK DATABASE AND WHETHER PROVIDED POST DATA IS VALID
+    if (!(db_error === null)) return responseFunction(500, {"msg":"ERR_DATABASE_NOT_CONNECTED"}, null);
+    
+    const { emailchk } = await loadRegex();
+    const { email, token } = req.query;
+    if (!(email && token)) return responseFunction(412, {"msg":"ERR_DATA_NOT_PROVIDED"}, null);
+    if (!(emailchk.test(email))) return responseFunction(412, {"msg":"ERR_DATA_FORMAT_INVALID"}, null);
+
+    //#FIND USER ON DATABASE USING EMAIL
+    const _user = await User.findOne({"email" : email, "enable" : false});
+    if (_user === null || _user === undefined) return responseFunction(409, {"msg":"ERR_USER_NOT_FOUND"}, null);
+
+    //#CHECK WHETHER TOKEN IS VALID
+    const _token = await Token.findOne({"owner" : email, "type" : "SIGNUP" , "token" : token });
+    if (!_token) return responseFunction(409, "ERR_PROVIDED_TOKEN_INVALID", null);
+    else if (Date.parse(_token.expired) < moment()) return responseFunction(409, "ERR_PROVIDED_TOKEN_INVALID", null);
+    
+    //#SAVE LOG FUNCTION
     const SAVE_LOG = (_result) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
@@ -73,24 +54,17 @@ router.get ("/", async (req,res) => {
         });
     };  
 
-    /**
-     * CHANGE USER ENABLE STATE
-     */
-    const verify = await User.updateOne( {"email" : email , "enable" : false }, {"enable" :  true} );
-    if (!verify) {
-        _response.result = "ERR_USER_UPDATE_FAILED";
-        res.status(500).json(_response);
+    //#CHANGE USER ENABLE STATE
+    const _verify = await User.updateOne({"email" : email , "enable" : false }, {"enable" : true});
+    if (!_verify) {
         SAVE_LOG(_response);
-        return;
+        return responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null);
     }
 
-    /**
-     * ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT
-     */
+    //#ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT
     await Token.deleteOne({"owner" : email, "type" : "SIGNUP", "token" : token});
-    _response.result = "SUCCEED_USER_ACTIVATED";
-    res.status(200).json(_response);
     SAVE_LOG(_response);
+    responseFunction(200, {"msg":"SUCCEED_USER_ACTIVATED"}, null);
 
     //handle HTML File
 
