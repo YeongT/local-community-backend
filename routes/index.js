@@ -28,7 +28,7 @@ router.use("/docs", swServe, swSetup(swaggerJSDoc(options)));
 router.get("/", (req, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.write("<title>Local Community API Server</title>");
-    res.write("<link rel=\"icon\" href=\"https://hakbong.me/common/icon.png\">");
+    res.write("<link rel=\"icon\" href=\"https://dev.hakbong.me/common/icon.png\">");
     res.write("Welcome!<br>This is API Server of Hakbong<br><br>");
     res.end("API Document is <a href=\"https://api.hakbong.me/docs\">HERE</a>");
 });
