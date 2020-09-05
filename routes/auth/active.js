@@ -58,7 +58,7 @@ router.get ("/", async (req,res) => {
     const _verify = await User.updateOne({"email" : email , "enable" : false }, {"enable" : true});
     if (!_verify) {
         SAVE_LOG(_response);
-        return responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null);
+        return responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _verify);
     }
 
     //#ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT
