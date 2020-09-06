@@ -38,7 +38,7 @@ router.get ("/", async (req,res) => {
     else if (Date.parse(_token.expired) < moment()) return await responseFunction(409, "ERR_PROVIDED_TOKEN_INVALID", null);
     
     //#SAVE LOG FUNCTION
-    const SAVE_LOG = (_response) => {
+    const SAVE_LOG = async (_response) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,

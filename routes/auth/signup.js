@@ -62,7 +62,7 @@ router.post ("/", async (req,res) => {
     });
 
     //#SAVE LOG FUNCTION
-    const SAVE_LOG = (_response) => {
+    const SAVE_LOG = async (_response) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,
@@ -71,7 +71,7 @@ router.post ("/", async (req,res) => {
             details : createUser,
             result : _response.result,
         });
-        await createLog.save((err) => {
+        await createLog.save(async (err) => {
             if (err) console.error(err);
         });
     };

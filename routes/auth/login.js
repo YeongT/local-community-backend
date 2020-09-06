@@ -37,7 +37,7 @@ router.post ("/", async (req,res) => {
     if (_user === null || _user === undefined) return await responseFunction(409, {"msg":"ERR_USER_NOT_FOUND"}, null);
 
     //#SAVE ACCESS LOG ON DATABASE
-    const SAVE_LOG = (_response) => {
+    const SAVE_LOG = async (_response) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,

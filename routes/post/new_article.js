@@ -56,7 +56,7 @@ router.put ("/", async (req,res) => {
     });
 
     //#SAVE LOG FUNCTION
-    const SAVE_LOG = (_response) => {
+    const SAVE_LOG = async (_response) => {
         const createLog = new postLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causeby : jwtuser.email,
@@ -65,7 +65,7 @@ router.put ("/", async (req,res) => {
             details : postArticle.content,
             result : _response.result
         });
-        await createLog.save((err) => {
+        await createLog.save(async (err) => {
             if (err) console.error(err);
         });
     };
