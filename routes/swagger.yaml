@@ -469,8 +469,6 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: article edited successfully.
-        '401':
-          description: userjwt is invalid to edit article.
         '403':
           description: >-
             Request denied because you are not authorized.<br>
@@ -517,8 +515,6 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: comment edited successfully.
-        '401':
-          description: userjwt is invalid to edit comment.
         '403':
           description: >-
             Request denied because you are not authorized.<br>
