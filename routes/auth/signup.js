@@ -34,7 +34,7 @@ router.post ("/", async (req,res) => {
     //#CHECK WHETHER PROVIDED POST DATA IS VALID
     const { email, password, name, gender, phone, areaString } = req.body;
     const { emailchk, passwdchk, phonechk, namechk } = await loadRegex();
-    if (!(email && password && name && gender && phone && areaString )) return responseFunction(412, {"msg":"ERR_DATA_NOT_PROVIDED"}, null);
+    if (!(email && password && name && gender && phone && areaString)) return responseFunction(412, {"msg":"ERR_DATA_NOT_PROVIDED"}, null);
     if (!(emailchk.test(email) && passwdchk.test(password) && phonechk.test(phone) && namechk.test(name))) return responseFunction(412, {"msg":"ERR_DATA_FORMAT_INVALID"}, null);
 
     //#CHECK WHETHER EMAIL IS USED
