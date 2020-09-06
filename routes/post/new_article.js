@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getClientIp } from "request-ip";
 import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
+import mongoose from "mongoose";
 import moment from "moment";
 import Article from "../../models/post/article";
 import postLog from "../../models/post/postlog";
@@ -20,8 +21,8 @@ router.put ("/", async (req,res) => {
     };
 
     //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID
-    const { target, title, text } = req.body;
-    var { tags, picture, link } = req.body;
+    const { title, text } = req.body;
+    var { target, tags, picture, link } = req.body;
     if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!(target && title && text && tags)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
@@ -31,11 +32,14 @@ router.put ("/", async (req,res) => {
     
     //#CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
+        target = await mongoose.Types.ObjectId(target);
         tags = await JSON.parse(tags);
         if (picture) picture = await JSON.parse(picture);
         if (link) link = await JSON.parse(link);
     }
     catch (err) {
+        if (err.toString() === "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters")
+         return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
         return await responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
     
