@@ -2,7 +2,7 @@ import { Router } from "express";
 import { pbkdf2Sync } from "crypto";
 import { getClientIp } from "request-ip";
 import { db_error } from "../../app";
-import { jwtSign } from "../jwtToken.js";
+import { jwtSign } from "../coms/jwtToken.js";
 import loadRegex from "../coms/loadRegex";
 import moment from "moment";
 import authLog from "../../models/authlog";

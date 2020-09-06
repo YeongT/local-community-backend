@@ -6,7 +6,7 @@ import loadRegex from "../coms/loadRegex";
 import { getClientIp } from "request-ip";
 import { readFileSync } from "fs";
 import { db_error } from "../../app";
-import { jwtSign } from "../jwtToken.js";
+import { jwtSign } from "../coms/jwtToken.js";
 import moment from "moment";
 import Token from "../../models/token";
 import authLog from "../../models/authlog";
