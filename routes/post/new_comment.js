@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getClientIp } from "request-ip";
 import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
+import mongoose from "mongoose";
 import moment from "moment";
 import Comment from "../../models/post/comment";
 import postLog from "../../models/post/postlog";
@@ -20,8 +21,8 @@ router.put ("/", async (req,res) => {
     };
 
     //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
-    const { target, text } = req.body;
-    var { picture } = req.body;
+    const { text } = req.body;
+    var { target, picture } = req.body;
     if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!(target && text)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
@@ -29,11 +30,14 @@ router.put ("/", async (req,res) => {
     const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
     if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
 
-    //#CHANGE STRING OBJECT TO ARRAY OBJECT
+    //#VALIDATE TARGET OBJECT ID && CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
+        target = await mongoose.Types.ObjectId(target);
         if (picture) picture = await JSON.parse(picture);
     }
     catch (err) {
+        if (err.toString() === "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters")
+         return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
         return await responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
 
