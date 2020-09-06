@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { commentEditLog as editLog } from "./recordlog";
+import { commentEditLog as editLog } from "../../routes/coms/buildEditlog";
 
 const Comment = new Schema({
   timestamp: String,
