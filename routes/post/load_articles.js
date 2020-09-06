@@ -1,58 +1,42 @@
 import { Router } from "express";
-import { jwtgetUser } from "../jwtgetUser";
+import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import Article from "../../models/post/article";
 
 const router = Router();
-router.post ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+router.get ("/:target", async (req,res) => {
+    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "output" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, output, error) => {
+        if (!(statusCode && body && output !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.output = output;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+    };
     
-    /**
-     * CHECK DATABASE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
+    var { target } = req.params;
+    if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!(target)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    /**
-     * VERIFY JWT TOKEN
-     */
-    var { target } = req.body;
-    const { userjwt } = req.body;
-    if (!(userjwt && target)) {
-        _response.result = "ERR_DATA_NOT_PROVIDED";
-        res.status(412).json(_response);
-        return;
-    }
-
-    const jwtuser = await jwtgetUser(userjwt);
-    if (!jwtuser.user) {
-        _response.result = jwtuser.error;
-        res.status(401).json(_response);
-        return;
-    }
-
-    //# SHOULD CODING CHECK-IF-USER-IS-IN-COMMUNITY SYNTAX
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
     
-    /**
-     * GENERATE TARGET OBJECT
-     */
+    //#GENERATE RESPONSE OUTPUT OBJECT
     try {
-        target = mongoose.Types.ObjectId(target);
+        target = await mongoose.Types.ObjectId(target);
     }
-    catch (err) {
-        console.error(err);
-        _response.result = "ERR_TARGET_ID_FORMAT_INVALID";
-        _response.error = err.toString();
-        res.status(412).json(_response);
-        return;
+    catch (parseerr) 
+    {
+       return await responseFunction(412, {"msg":"ERR_TARGET_ID_FORMAT_INVALID"}, null, parseerr.toString());
     }
 
     /**
-     * GET COMMENT OBJECT WHOSE TARGET IS PROVIDED ID 
+     * GET ARTICLE OBJECT WHOSE TARGET IS PROVIDED OBJECT ID
      * REMOVE USELESS FILED TO SAVE TRAFFIC
      */
     const _article = await Article.find({
@@ -69,20 +53,15 @@ router.post ("/", async (req,res) => {
     }).sort({
         "_id": -1
     });
-    if (!_article) {
-        _response.result = "ERR_LOADING_TARGET_ARTICLE";
-        res.status(500).json(_response);
-        return;
-    }
-
-    /**
-     * RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
-     */
-    _response.result = _article.length ? "SUCCEED_ARTICLES_LOADED" : "COULD_NOT_FOUND_ANY_ARTICLE";
-    _response.count = _article.length;
-    _response.articles = _article;
-    res.status(200).json(_response);
+    if (!_article) return await responseFunction(500, {"msg":"ERR_LOADING_TARGET_ARTICLES_FAILED"}, null);
+    
+    //RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
+    return await responseFunction(200, {
+        "msg": _article.length ? "SUCCEED_ARTICLES_LOADED" : "COULD_NOT_FOUND_ANY_ARTICLE"
+    }, {
+        "count": _article.length,
+        "articles": _article
+    });
 });
-
 
 export default router;

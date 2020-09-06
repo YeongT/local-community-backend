@@ -1,54 +1,38 @@
 import { Router } from "express";
-import { jwtgetUser } from "../jwtgetUser";
+import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import Comment from "../../models/post/comment";
 
 const router = Router();
-router.post ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+router.get ("/:target", async (req,res) => {
+    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "output" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, output, error) => {
+        if (!(statusCode && body && output !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.output = output;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+    };
+    
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
+    var { target } = req.params;
+    if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!(target)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    /**
-     * CHECK DATABASE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
 
-    /**
-     * VERIFY JWT TOKEN
-     */
-    var { target } = req.body;
-    const { userjwt } = req.body;
-    if (!(userjwt && target)) {
-        _response.result = "ERR_DATA_NOT_PROVIDED";
-        res.status(412).json(_response);
-        return;
-    }
-
-    const jwtuser = await jwtgetUser(userjwt);
-    if (!jwtuser.user) {
-        _response.result = jwtuser.error;
-        res.status(401).json(_response);
-        return;
-    }
-
-    //# SHOULD CODING CHECK-IF-USER-IS-IN-COMMUNITY SYNTAX
-
-    /**
-     * GENERATE TARGET OBJECT
-     */
+    //#GENERATE RESPONSE OUTPUT OBJECT
     try {
-        target = mongoose.Types.ObjectId(target);
+        target = await mongoose.Types.ObjectId(target);
     }
-    catch (err) {
-        console.error(err);
-        _response.result = "ERR_TARGET_ID_FORMAT_INVALID";
-        _response.error = err.toString();
-        res.status(412).json(_response);
-        return;
+    catch (parseerr) 
+    {
+       return await responseFunction(412, {"msg":"ERR_TARGET_ID_FORMAT_INVALID"}, null, parseerr.toString());
     }
    
     /**
@@ -56,7 +40,7 @@ router.post ("/", async (req,res) => {
      * REMOVE USELESS FILED TO SAVE TRAFFIC
      */
     const _comment = await Comment.find({
-        "target": target,
+        target,
         "visible": true,
         "suecount": {
             "$lte": 5
@@ -69,19 +53,15 @@ router.post ("/", async (req,res) => {
     }).sort({
         "_id": -1
     });
-    if (!_comment) {
-        _response.result = "ERR_LOADING_TARGET_COMMENT";
-        res.status(500).json(_response);
-        return;
-    }
+    if (!_comment) return await responseFunction(500, {"msg":"ERR_LOADING_TARGET_COMMENTS_FAILED"}, null);
 
-    /**
-     * RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
-     */
-    _response.result = _comment.length ? "SUCCEED_COMMENTS_LOADED" : "COULD_NOT_FOUND_ANY_COMMENT";
-    _response.count = _comment.length;
-    _response.comments = _comment;
-    res.status(200).json(_response);
+    //RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
+    return await responseFunction(200, {
+        "msg": _comment.length ? "SUCCEED_COMMENTS_LOADED" : "COULD_NOT_FOUND_ANY_COMMENT"
+    }, {
+        "count": _comment.length,
+        "articles": _comment
+    });
 });
 
 export default router;

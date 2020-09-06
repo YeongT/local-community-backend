@@ -1,62 +1,43 @@
 import { Router } from "express";
-import { jwtgetUser } from "../jwtgetUser";
+import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import Article from "../../models/post/article";
 import Comment from "../../models/post/comment";
 
 const router = Router();
-router.post ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+router.get ("/:objectType/:target", async (req,res) => {
+    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "output" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, output, error) => {
+        if (!(statusCode && body && output !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.output = output;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+    };
 
-    /**
-     * CHECK DATABASE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
+    var { objectType, target } = req.params;
+    if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!(objectType && target)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    /**
-     * VERIFY JWT TOKEN
-     */
-    var { target } = req.body;
-    const { userjwt, objectType } = req.body;
-    if (!(userjwt && objectType && target)) {
-        _response.result = "ERR_DATA_NOT_PROVIDED";
-        res.status(412).json(_response);
-        return;
-    }
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
 
-    const jwtuser = await jwtgetUser(userjwt);
-    if (!jwtuser.user) {
-        _response.result = jwtuser.error;
-        res.status(401).json(_response);
-        return;
-    }
-
-    //# SHOULD CODING CHECK-IF-USER-IS-IN-COMMUNITY SYNTAX
-
-    /**
-     * GENERATE TARGET OBJECT
-     */
+    //#GENERATE RESPONSE OUTPUT OBJECT
     try {
-        target = mongoose.Types.ObjectId(target);
+        target = await mongoose.Types.ObjectId(target);
     }
-    catch (err) {
-        console.error(err);
-        _response.result = "ERR_TARGET_ID_FORMAT_INVALID";
-        _response.error = err.toString();
-        res.status(412).json(_response);
-        return;
+    catch (parseerr) 
+    {
+       return await responseFunction(412, {"msg":"ERR_TARGET_ID_FORMAT_INVALID"}, null, parseerr.toString());
     }
    
-    /**
-     * GET TARGET OBJECT
-     */
-    var _editlog = undefined,
-        condition = {
+    //#GENERATE RESPONSE OBJECT && GET TARGET OBJECT
+    var _editlog = undefined, condition = {
             "_id": target,
             "visible": true,
             "suecount": {
@@ -65,19 +46,15 @@ router.post ("/", async (req,res) => {
         };
     if (objectType === "article") _editlog = await Article.findOne(condition);
     if (objectType === "comment") _editlog = await Comment.findOne(condition);
-    if (!_editlog) {
-        _response.result = "ERR_ACCESS_TARGET_OBJECT_FAILED";
-        res.status(409).json(_response);
-        return;
-    }
+    if (!_editlog) return await responseFunction(409, {"msg":"ERR_ACCESS_TARGET_OBJECT_FAILED"}, null);
 
-    /**
-     * RETURN COMMENT OBJECT TO CLIENT DEPENDS ON ARRAY LENGTH
-     */
-    _response.result = _editlog.modify.ismodified ? "SUCCEED_EDITLOG_LOADED" : "OBJECT_HAD_NOT_BEEN_MODIFIED";
-    _response.count = _editlog.modify.history.length;
-    _response.history = _editlog.modify.history;
-    res.status(200).json(_response);
+    //RETURN EDITLOG OBJECT TO CLIENT DEPENDS ON ISMODIFIED
+    return await responseFunction(200, {
+        "msg": _editlog.modify.ismodified ? "SUCCEED_EDITLOG_LOADED" : "OBJECT_HAD_NOT_BEEN_MODIFIED"
+    }, {
+        "count": _editlog.modify.history.length,
+        "history": _editlog.modify.history
+    });
 });
 
 export default router;
