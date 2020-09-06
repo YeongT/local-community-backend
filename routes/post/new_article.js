@@ -35,7 +35,7 @@ router.put ("/", async (req,res) => {
     }
     catch (err) {
         if (err.toString() === "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters")
-         return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
+            return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
         return await responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
     
