@@ -5,7 +5,8 @@ const postlog = new Schema({
     causedby: String,
     originip: String,
     category: String,
-    details: Object
+    details: Object,
+    result: Object
 }, {
     versionKey: false
 });
