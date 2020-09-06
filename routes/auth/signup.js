@@ -23,7 +23,6 @@ router.post ("/", async (req,res) => {
         _response.result.token = token;
         _response.result.error = error;
         res.status(statusCode).json(_response);
-        return true;
     };
 
     //#CHECK DATABASE AND MAIL_SERVER STATE AND CHECK AUTHORIZATION HEADER USING BASIC AUTH
@@ -79,7 +78,7 @@ router.post ("/", async (req,res) => {
 
     await createUser.save(async (save_error) => {
         //# HANDLE WHEN SAVE TASK FAILED
-        if (save_error) responseFunction(500, {"msg":"ERR_USER_SAVE_FAILED"}, null, save_error);
+        if (save_error) return responseFunction(500, {"msg":"ERR_USER_SAVE_FAILED"}, null, save_error);
         
         //# GENERATE TOKEN AND SAVE ON DATABASE
         const token = randomBytes(30); 
@@ -95,8 +94,8 @@ router.post ("/", async (req,res) => {
             if (!verify) throw(verify);
         }
         catch (error) {
-            SAVE_LOG(_response);
-            return responseFunction(424, {"msg":"ERR_AUTH_TOKEN_SAVE_FAILED"}, null, error);
+            await responseFunction(424, {"msg":"ERR_AUTH_TOKEN_SAVE_FAILED"}, null, error);
+            return SAVE_LOG(_response);
         }
 
         //# SEND VERIFICATION MAIL
@@ -115,17 +114,17 @@ router.post ("/", async (req,res) => {
             createUser.salt = undefined;
             const { jwttoken, tokenerror } = await jwtSign(createUser);
             if (!(tokenerror === null)) {
-                SAVE_LOG(_response);
-                return responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
+                await responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
+                return SAVE_LOG(_response);
             }
             const sendMail = await transporter.sendMail(mailOptions);
             if (!sendMail) throw("UNKNOWN_MAIL_SEND_ERROR_ACCURED");
-            SAVE_LOG(_response);
-            return responseFunction(200, {"msg":"SUCCEED_USER_CREATED"}, jwttoken);
+            await responseFunction(200, {"msg":"SUCCEED_USER_CREATED"}, jwttoken);
+            return SAVE_LOG(_response);
         }
         catch (error) {
-            SAVE_LOG(_response);
-            return responseFunction(424, {"msg":"ERR_VERIFY_EMAIL_SEND_FAILED"}, null, error);
+            responseFunction(424, {"msg":"ERR_VERIFY_EMAIL_SEND_FAILED"}, null, error);
+            return SAVE_LOG(_response);
         }
     });
 });
