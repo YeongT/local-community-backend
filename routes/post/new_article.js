@@ -25,10 +25,6 @@ router.put ("/", async (req,res) => {
     var { target, tags, picture, link } = req.body;
     if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!(target && title && text && tags)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
-
-    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
-    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
-    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
     
     //#CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
@@ -42,6 +38,10 @@ router.put ("/", async (req,res) => {
          return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
         return await responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
+    
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
     
     //#GENERATE ARTICLE OBJECT
     const postArticle = new Article({
