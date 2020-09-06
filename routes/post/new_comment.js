@@ -26,10 +26,6 @@ router.put ("/", async (req,res) => {
     if (!(db_error === null)) return await responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!(target && text)) return await responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
-    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
-    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
-
     //#VALIDATE TARGET OBJECT ID && CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
         target = await mongoose.Types.ObjectId(target);
@@ -37,9 +33,13 @@ router.put ("/", async (req,res) => {
     }
     catch (err) {
         if (err.toString() === "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters")
-         return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
+            return await responseFunction(412, {"msg":"ERR_TARGET_FORMAT_INVALID"}, null, err.toString());
         return await responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
+    
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return await responseFunction(403, {"msg":jwtbody}, null, jwterror);
 
     //#GENERATE COMMENT OBJECT
     const postComment = new Comment({

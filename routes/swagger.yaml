@@ -86,7 +86,7 @@ paths:
         '403':
           description: >-
             Request denied because you are not authorized.<br>
-            Please apply authorization header.
+            Please send correct authorization header.
         '409':
           description: email client provided duplicated.
         '412':
@@ -168,7 +168,7 @@ paths:
         '403':
           description: >-
             Request denied because you are not authorized.<br>
-            Please apply authorization header.
+            Please send correct authorization header.
         '409':
           description: account client provided not exist
         '412':
@@ -203,24 +203,20 @@ paths:
         '500':
           description: jwt token decode failed
   /post/new-article:
-    post:
+    put:
       tags:
         - post
       summary: Post New Article
       description: api node for posting new article
       operationId: newarticle
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      consumes:
+        - application/x-www-form-urlencoded
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of article owner
-          required: true
-          type: string
-          format: password
         - name: target
           in: formData
           description: community id for article 
@@ -256,31 +252,29 @@ paths:
               $ref: "#/definitions/apiResult"
         '200':
           description: article posted successfully.
-        '401':
-          description: userjwt is invalid to post article.
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '412':
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
   /post/new-comment:
-    post:
+    put:
       tags:
         - post
       summary: Post New Comment
       description: api node for posting new comment
       operationId: newcomment
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      consumes:
+        - application/x-www-form-urlencoded
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of comment owner
-          required: true
-          type: string
-          format: password
         - name: target
           in: formData
           description: comment or article id for comment
@@ -304,31 +298,29 @@ paths:
           description: comment posted successfully.
         '401':
           description: userjwt is invalid to post comment.
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '412':
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
-  /post/load-articles:
-    post:
+  /post/load-articles/{target}:
+    get:
       tags:
         - post
       summary: Load Articles From Community
       description: api node for loading articles in community.
       operationId: loadarticles
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of executer
-          required: true
-          type: string
-          format: password
         - name: target
-          in: formData
+          in: path
           description: comment or article id for comment
           required: true
           type: string
@@ -341,31 +333,29 @@ paths:
           description: loading articles process finished.
           schema:
               $ref: "#/definitions/resArticles"
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '412':
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
-  /post/load-comments:
-    post:
+  /post/load-comments/{target}:
+    get:
       tags:
         - post
       summary: Load Comments From Article or Comment
       description: api node for loading comments in comment or article.
       operationId: loadcomment
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of executer
-          required: true
-          type: string
-          format: password
         - name: target
-          in: formData
+          in: path
           description: comment or article id for comment
           required: true
           type: string
@@ -378,37 +368,35 @@ paths:
           description: loading comments process finished.
           schema:
               $ref: "#/definitions/resComments"
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '412':
           description: data client provided doesn't satisfy format.
         '500':
           description: unknown server error occured (cause of network status)
-  /post/load-editlogs:
-    post:
+  /post/load-editlogs/{objectType}/{target}:
+    get:
       tags:
         - post
       summary: Load Edit History From Article or Comment
       description: api node for loading editlogs in comment or article.
       operationId: loadeditlog
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of executer
-          required: true
-          type: string
-          format: password
         - name: objectType
-          in: formData
+          in: path
           description: select object type which you want to query.
           type: string
           enum: ["article","comment"]
           required: true
         - name: target
-          in: formData
+          in: path
           description: comment or article id for loading history.
           required: true
           type: string
@@ -421,6 +409,10 @@ paths:
           description: loading comments process finished.
           schema:
               $ref: "#/definitions/resEditlogs"
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '409':
           description: article or comment object client provided doesn't exist.
         '412':
@@ -434,18 +426,14 @@ paths:
       summary: Edit Exist Article
       description: api node for editing article
       operationId: modarticle
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      consumes:
+        - application/x-www-form-urlencoded
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of article owner
-          required: true
-          type: string
-          format: password
         - name: target
           in: formData
           description: object id which you want to modify
@@ -483,6 +471,10 @@ paths:
           description: article edited successfully.
         '401':
           description: userjwt is invalid to edit article.
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '409':
           description: comment object client provided doesn't exist.
         '412':
@@ -496,18 +488,14 @@ paths:
       summary: Edit Exist Comment
       description: api node for editing article
       operationId: modcomment
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
         - application/xml
+      consumes:
+        - application/x-www-form-urlencoded
+      security:
+        - JWTAuth: []
       parameters:
-        - name: userjwt
-          in: formData
-          description: jwttoken of comment owner
-          required: true
-          type: string
-          format: password
         - name: target
           in: formData
           description: object id which you want to modify
@@ -531,6 +519,10 @@ paths:
           description: comment edited successfully.
         '401':
           description: userjwt is invalid to edit comment.
+        '403':
+          description: >-
+            Request denied because you are not authorized.<br>
+            Please send correct authorization header.
         '409':
           description: comment object client provided doesn't exist.
         '412':
@@ -551,8 +543,8 @@ definitions:
             properties:
               msg:
                 type: string
-          token:
-            type: string
+          output:
+            type: object
           error:
             type: string
   UserInfo:
@@ -568,125 +560,154 @@ definitions:
             properties:
               msg:
                 type: string
-              decode:
-                type: object
-                properties:
-                  area:
-                    type: string
-                  enable: 
-                    type: boolean
-                  email:
-                    type: string
-                  name:
-                    type: string
-                  gender:
-                    type: number
-                  phone:
-                    type: string
-                  lastlogin:
-                    type: string
-                    format: date
-                    pattern: 'yyyy-MM-dd hh:mm:ss'
-                  created:
-                    type: number
-                  expired:
-                    type: number
-          token:
-            type: string
+          output:
+            type: object
+            properties:
+              enable: 
+                type: boolean
+              email:
+                type: string
+              name:
+                type: string
+              gender:
+                type: number
+              phone:
+                type: string
+              areaString:
+                type: string
+              lastlogin:
+                type: string
+              iat:
+                type: number
+              exp:
+                type: number
           error:
             type: string
   resArticles:
     type: object
     properties:
-      result:
-        type: string
-      count:
-        type: number
-      articles:
-        type: array
-        items:
-          type: object
-          properties:
-            timestamp:
-              type: string
-            content:
-              type: object
-              properties:
-                title:
-                  type: string
-                text:
-                  type: string
-                tags:
-                  type: array
-                  items:
-                    type: string
-                attach:
+      result: 
+        type: object
+        properties:
+          statusCode:
+            type: number
+          body:
+            type: object
+            properties:
+              msg:
+                type: string
+          output:
+            type: object
+            properties:
+              count:
+                type: number
+              articles:
+                type: array
+                items:
                   type: object
                   properties:
-                    picture:
-                      type: array
-                      items:
-                        type: string
-                    link:
-                      type: array
-                      items:
-                        type: string
-            owner: 
-              type: string
-            modify:
-              type: object
-              properties:
-                ismodified:
-                  type: boolean
-                  default: false
+                    timestamp:
+                      type: string
+                    content:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        text:
+                          type: string
+                        tags:
+                          type: array
+                          items:
+                            type: string
+                        attach:
+                          type: object
+                          properties:
+                            picture:
+                              type: array
+                              items:
+                                type: string
+                            link:
+                              type: array
+                              items:
+                                type: string
+                    owner: 
+                      type: string
+                    modify:
+                      type: object
+                      properties:
+                        ismodified:
+                          type: boolean
+                          default: false
   resComments:
     type: object
     properties:
-      result:
-        type: string
-      count:
-        type: number
-      comments:
-        type: array
-        items:
-          type: object
-          properties:
-            timestamp:
-              type: string
-            content:
-              type: object
-              properties:
-                text:
-                  type: string
-                picture:
-                  type: array
-                  items:
-                    type: string
-            owner: 
-              type: string
-            modify:
-              type: object
-              properties:
-                ismodified:
-                  type: boolean
-                  default: false
+      result: 
+        type: object
+        properties:
+          statusCode:
+            type: number
+          body:
+            type: object
+            properties:
+              msg:
+                type: string
+          output:
+            type: object
+            properties:
+              count:
+                type: number
+              comments:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                    content:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                        picture:
+                          type: array
+                          items:
+                            type: string
+                    owner: 
+                      type: string
+                    modify:
+                      type: object
+                      properties:
+                        ismodified:
+                          type: boolean
+                          default: false
   resEditlogs:
     type: object
     properties:
-      result:
-        type: string
-      count:
-        type: number
-      history:
-        type: array
-        items:
-          type: object
-          properties:
-            timestamp:
-              type: string
-            content:
-              type: object
-              example: object
+      result: 
+        type: object
+        properties:
+          statusCode:
+            type: number
+          body:
+            type: object
+            properties:
+              msg:
+                type: string
+          output:
+            type: object
+            properties:
+              count:
+                type: number
+              history:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                    content:
+                      type: object
+                      example: object
 externalDocs:
   description: Find out more about our team
   url: 'https://implude.com/teams/aidu'
