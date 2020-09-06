@@ -6,7 +6,7 @@ const User = new Schema({
   name: String,
   gender: Number,
   phone: String,
-  area: String,
+  areaString: String,
   lastlogin: String,
   salt: String,
   enable: {

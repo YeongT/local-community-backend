@@ -24,7 +24,7 @@ router.get ("/", async (req,res) => {
     if (!_decode) return responseFunction(500, {"msg":"ERR_TOKEN_DECODE_FAILED"}, null, _decode);
     
     _decode._id = undefined;
-    responseFunction(200, {"msg":"SUCCEED_TOKEN_DECODED", "decode":_decode}, null);
+    responseFunction(200, {"msg":"SUCCEED_TOKEN_DECODED"}, _decode);
 });
 
 export default router;

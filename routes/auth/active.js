@@ -39,16 +39,15 @@ router.get ("/", async (req,res) => {
     else if (Date.parse(_token.expired) < moment()) return responseFunction(409, "ERR_PROVIDED_TOKEN_INVALID", null);
     
     //#SAVE LOG FUNCTION
-    const SAVE_LOG = (_result) => {
+    const SAVE_LOG = (_response) => {
         const createLog = new authLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
             causedby : email,
             originip : getClientIp(req),
             category : "ACTIVATE",
             details : _token,
-            result : _result
+            result : _response.result
         });
-        
         createLog.save(async (err) => {
             if (err) console.error(err);
         });
@@ -57,14 +56,14 @@ router.get ("/", async (req,res) => {
     //#CHANGE USER ENABLE STATE
     const _verify = await User.updateOne({"email" : email , "enable" : false }, {"enable" : true});
     if (!_verify) {
+        await responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _verify);
         SAVE_LOG(_response);
-        return responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _verify);
     }
 
     //#ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT
     await Token.deleteOne({"owner" : email, "type" : "SIGNUP", "token" : token});
-    SAVE_LOG(_response);
-    responseFunction(200, {"msg":"SUCCEED_USER_ACTIVATED"}, null);
+    await responseFunction(200, {"msg":"SUCCEED_USER_ACTIVATED"}, null);
+    return SAVE_LOG(_response);
 
     //handle HTML File
 

@@ -69,7 +69,7 @@ router.post ("/", async (req,res) => {
             originip : getClientIp(req),
             category : "SIGNUP",
             details : createUser,
-            result : _response,
+            result : _response.result,
         });
         createLog.save((err) => {
             if (err) console.error(err);
