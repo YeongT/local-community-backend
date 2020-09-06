@@ -1,60 +1,46 @@
 import { Router } from "express";
 import { getClientIp } from "request-ip";
-import { jwtgetUser } from "../jwtgetUser";
+import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
 import moment from "moment";
 import Article from "../../models/post/article";
 import postLog from "../../models/post/postlog";
 
 const router = Router();
-router.post ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
-    /**
-     * CHECK DATABASE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
+router.put ("/", async (req,res) => {
+    var _response = { "result" : { "statusCode" : 500, "body" : "ERR_SERVER_FAILED_TEMPORARILY", "token" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, token, error) => {
+        if (!(statusCode && body && token !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.token = token;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+        return true;
+    };
 
-    const { userjwt, target, title, text } = req.body;
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID
+    const { target, title, text } = req.body;
     var { tags, picture, link } = req.body;
-    if (!(userjwt && target && title && text && tags)) {
-        _response.result = "ERR_DATA_NOT_PROVIDED";
-        res.status(412).json(_response);
-        return;
-    }
+    if (!(db_error === null)) return responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!(target && title && text && tags)) return responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    /**
-     * CHANGE STRING OBJECT TO ARRAY OBJECT
-     */
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return responseFunction(403, {"msg":jwtbody}, null, jwterror);
+    
+    //#CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
         tags = JSON.parse(tags);
         if (picture) picture = JSON.parse(picture);
         if (link) link = JSON.parse(link);
     }
     catch (err) {
-        console.error(err);
-        _response.result = "ERR_DATA_ARRAY_FORMAT_INVALID";
-        _response.error = err.toString();
-        res.status(412).json(_response);
-        return;
-    }
-
-    /**
-     * VERIFY JWT TOKEN && GET USER OBJECT
-     */
-    const jwtuser = await jwtgetUser(userjwt);
-    if (!jwtuser.user) {
-        _response.result = jwtuser.error;
-        res.status(401).json(_response);
-        return;
+        return responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
     
-    /**
-     * GENERATE ARTICLE OBJECT
-     */
+    //#GENERATE ARTICLE OBJECT
     const postArticle = new Article({
         timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
         target,
@@ -67,41 +53,30 @@ router.post ("/", async (req,res) => {
                 link
             }
         },
-        owner: jwtuser.user._id
+        owner: jwtuser._id
     });
 
-    /**
-     * SAVE LOG FUNCTION
-     */
+    //#SAVE LOG FUNCTION
     const SAVE_LOG = (_response) => {
         const createLog = new postLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
-            causeby : jwtuser.user.email,
+            causeby : jwtuser.email,
             originip : getClientIp(req),
             category : "NEW_ARTICLE",
-            details : postArticle.content
+            details : postArticle.content,
+            result : _response.result
         });
         createLog.save((err) => {
             if (err) console.error(err);
         });
     };
 
-    /**
-     * SAVE ARTICLE INFO ON DATABASE
-     */
-    await postArticle.save(async (err) => {
-        if (err) {
-            _response.result = "ERR_POST_ARTICLE_FAILED";
-            _response.error = err;
-            res.status(500).json(_response);
-            return;
-        }
-
-        _response.result = "SUCCEED_ARTICLE_POSTED";
-        res.status(200).json(_response);
+    //#SAVE ARTICLE INFO ON DATABASE
+    await postArticle.save(async (save_error) => {
+        if (save_error) responseFunction(500, {"msg":"ERR_POST_NEW_ARTICLE_FAIELD"}, null, save_error);
         SAVE_LOG(_response);
+        return responseFunction(200, {"msg":"SUCCEED_NEW_ARTICLE_POSTED"}, null);
     });
 });
-
 
 export default router;

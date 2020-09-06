@@ -9,6 +9,7 @@ const User = new Schema({
   areaString: String,
   lastlogin: String,
   salt: String,
+  community: Array,
   enable: {
     type: Boolean,
     default: false

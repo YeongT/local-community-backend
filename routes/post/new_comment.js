@@ -1,59 +1,44 @@
 import { Router } from "express";
 import { getClientIp } from "request-ip";
-import { jwtgetUser } from "../jwtgetUser";
+import { jwtgetUser } from "../coms/jwtgetUser";
 import { db_error } from "../../app";
 import moment from "moment";
 import Comment from "../../models/post/comment";
 import postLog from "../../models/post/postlog";
 
 const router = Router();
-router.post ("/", async (req,res) => {
-    var _response = { "result" : "ERR_SERVER_FAILED_TEMPORARILY" };
+router.put ("/", async (req,res) => {
+    var _response = { "result" : { "statusCode" : 500, "body" : "ERR_SERVER_FAILED_TEMPORARILY", "token" : null, "error" : "SERVER_RESPONSE_INVALID" }};
+    const responseFunction = (statusCode, body, token, error) => {
+        if (!(statusCode && body && token !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
+        if (!(error === undefined || error === null)) console.error(error);
+        _response.result.statusCode = statusCode;
+        _response.result.body = body;
+        _response.result.token = token;
+        _response.result.error = error;
+        res.status(statusCode).json(_response);
+        return true;
+    };
 
-    /**
-     * CHECK DATABASE
-     */
-    if (!(db_error === null)) {
-        _response.result = "ERR_DATABASE_NOT_CONNECTED";
-        res.status(500).json(_response);
-        return;
-    }
-
-    const { userjwt, target, text } =  req.body;
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
+    const { target, text } = req.body;
     var { picture } = req.body;
-    if (!(userjwt && target && text)) {
-        _response.result = "ERR_DATA_NOT_PROVIDED";
-        res.status(412).json(_response);
-        return;
-    }
+    if (!(db_error === null)) return responseFunction(500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!(target && text)) return responseFunction(412, "ERR_DATA_NOT_PROVIDED", null);
 
-    /**
-     * CHANGE STRING OBJECT TO ARRAY OBJECT
-     */
+    //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    if (!(jwterror === null)) return responseFunction(403, {"msg":jwtbody}, null, jwterror);
+
+    //#CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
         if (picture) picture = JSON.parse(picture);
     }
     catch (err) {
-        console.error(err);
-        _response.result = "ERR_DATA_ARRAY_FORMAT_INVALID";
-        _response.error = err.toString(); 
-        res.status(412).json(_response);
-        return;
+        return responseFunction(412, {"msg":"ERR_DATA_ARRAY_FORMAT_INVALID"}, null, err.toString());
     }
 
-    /**
-     * VERIFY JWT TOKEN && GET USER OBJECT
-     */
-    const jwtuser = await jwtgetUser(userjwt);
-    if (!jwtuser.user) {
-        _response.result = jwtuser.error;
-        res.status(401).json(_response);
-        return;
-    }
-
-    /**
-     * GENERATE COMMENT OBJECT
-     */
+    //#GENERATE COMMENT OBJECT
     const postComment = new Comment({
         timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
         target,
@@ -61,41 +46,30 @@ router.post ("/", async (req,res) => {
             text,
             picture
         },
-        owner: jwtuser.user._id
+        owner: jwtuser._id
     });
 
-    /**
-     * SAVE LOG FUNCTION
-     */
+    //#SAVE LOG FUNCTION
     const SAVE_LOG = (_response) => {
         const createLog = new postLog ({
             timestamp : moment().format("YYYY-MM-DD HH:mm:ss"), 
-            causeby : jwtuser.user.email,
+            causeby : jwtuser.email,
             originip : getClientIp(req),
             category : "NEW_COMMENT",
-            details : postComment.content
+            details : postComment.content,
+            result : _response.result
         });
         createLog.save((err) => {
             if (err) console.error(err);
         });
     };
 
-    /**
-     * SAVE ARTICLE INFO ON DATABASE
-     */
-    await postComment.save(async (err) => {
-        if (err) {
-            _response.result = "ERR_POST_COMMENT_FAILED";
-            _response.error = err;
-            res.status(500).json(_response);
-            return;
-        }
-
-        _response.result = "SUCCEED_COMMENT_POSTED";
-        res.status(200).json(_response);
+    //#SAVE COMMENT INFO ON DATABASE
+    await postComment.save(async (save_error) => {
+        if (save_error) responseFunction(500, {"msg":"ERR_POST_NEW_COMMENT_FAIELD"}, null, save_error);
         SAVE_LOG(_response);
+        return responseFunction(200, {"msg":"SUCCEED_NEW_COMMENT_POSTED"}, null);
     });
 });
-
 
 export default router;
