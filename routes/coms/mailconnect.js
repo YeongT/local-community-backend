@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer";
+
 var _response = { "transporter" : null, "mailerror" : true };
 const mailConnect = async () => {
     const transporter = createTransport({
