@@ -10,6 +10,7 @@ const User = new Schema({
   lastlogin: String,
   salt: String,
   community: Array,
+  profileimg: String,
   enable: {
     type: Boolean,
     default: false
