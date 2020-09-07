@@ -573,6 +573,8 @@ definitions:
                 type: string
               lastlogin:
                 type: string
+              profileimg:
+                type: string
               iat:
                 type: number
               exp:
