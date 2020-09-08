@@ -9,6 +9,7 @@
     "restart": "pm2 restart serve",
     "status": "pm2 status",
     "stop": "pm2 delete serve",
+    "test": "babel ./ --out-dir build --delete-dir-on-start --include-dotfiles --ignore node_modules",
     "dev": "nodemon --exec babel-node ./serve.js -e js,json,yaml,html,env"
   },
   "author": "",
