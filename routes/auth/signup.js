@@ -105,7 +105,7 @@ router.post ("/", async (req,res) => {
             const mailOptions = {
                 from: "Local-Community<no-reply@hakbong.me>",
                 to: email, 
-                subject: "[Local Comunity] Account Verification Email", 
+                subject: "[Local Community] Account Verification Email", 
                 html: emailData
             };
 
