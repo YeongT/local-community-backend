@@ -3,6 +3,12 @@ node_js:
   - 12.18.3
 before_install:
   - yarn install
+branches:
+  only:
+    - master
+    - develop
+    - refactor
+    - dependency
 notifications:
   email:
     recipients:
