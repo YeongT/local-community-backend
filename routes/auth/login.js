@@ -3,6 +3,7 @@ import { pbkdf2Sync } from "crypto";
 import { getClientIp } from "request-ip";
 import { db_error } from "../../app";
 import { jwtSign } from "../coms/jwtToken.js";
+import responseFunction from "../coms/apiResponse";
 import loadRegex from "../coms/loadRegex";
 import moment from "moment";
 import authLog from "../../models/authlog";
@@ -11,30 +12,19 @@ import User from "../../models/user";
 const router = Router();
 
 router.post ("/", async (req,res) => {
-    var _response = { "result" : { "statusCode" : 500, "body" : {"msg":"ERR_SERVER_FAILED_TEMPORARILY"}, "output" : null, "error" : "SERVER_RESPONSE_INVALID" }};
-    const responseFunction = (statusCode, body, output, error) => {
-        if (!(statusCode && body && output !== undefined)) throw("ERR_SERVER_BACKEND_SYNTAX_FAILED");
-        if (!(error === undefined || error === null)) console.error(error);
-        _response.result.statusCode = statusCode;
-        _response.result.body = body;
-        _response.result.output = output;
-        _response.result.error = error;
-        res.status(statusCode).json(_response);
-    };
-
     //#CHECK DATABASE AND CHECK AUTHORIZATION HEADER USING BASIC AUTH
-    if (!(db_error === null)) return await responseFunction(500, {"msg":"ERR_DATABASE_NOT_CONNECTED"}, null);
-    if (!(req.headers.authorization === `Basic ${process.env.ACCOUNT_BASIC_AUTH_KEY}`)) return await responseFunction(403, {"msg":"ERR_NOT_AUTHORIZED_IDENTITY"}, null);
+    if (!(db_error === null)) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED");
+    if (!(req.headers.authorization === `Basic ${process.env.ACCOUNT_BASIC_AUTH_KEY}`)) return await responseFunction(res, 403, "ERR_NOT_AUTHORIZED_IDENTITY");
     
     //#CHECK WHETHER PROVIDED POST DATA IS VALID
     const { email, password } = req.body;
     const { emailchk, passwdchk } = await loadRegex();
-    if (!(email && password)) return await responseFunction(412, {"msg":"ERR_DATA_NOT_PROVIDED"}, null);
-    if (!(emailchk.test(email) && passwdchk.test(password))) return await responseFunction(412, {"msg":"ERR_DATA_FORMAT_INVALID"}, null);
+    if (!(email && password)) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED");
+    if (!(emailchk.test(email) && passwdchk.test(password))) return await responseFunction(res, 412, "ERR_DATA_FORMAT_INVALID");
 
     //#GET USER OBJECT THROUGH EMAIL
     const _user = await User.findOne({"email" : email});
-    if (_user === null || _user === undefined) return await responseFunction(409, {"msg":"ERR_USER_NOT_FOUND"}, null);
+    if (_user === null || _user === undefined) return await responseFunction(res, 409, "ERR_USER_NOT_FOUND");
 
     //#SAVE ACCESS LOG ON DATABASE
     const SAVE_LOG = async (_response) => {
@@ -54,25 +44,18 @@ router.post ("/", async (req,res) => {
     //COMPARE DB_PASSWORD WITH PROVIDED PASSWORD
     const encryptPassword = await pbkdf2Sync(password, _user.salt, 100000, 64, "SHA512");
     req.body.password = encryptPassword.toString("base64"); //HIDE INPUT_PW ON DATABASE
-    if (!(encryptPassword.toString("base64") === _user.password)) return await responseFunction(409, {"msg":"ERR_USER_AUTH_FAILED"}, null);
+    if (!(encryptPassword.toString("base64") === _user.password)) return await responseFunction(res, 409, "ERR_USER_AUTH_FAILED");
 
     //#UPDATE LAST_LOGIN FIELD
     const _update = await User.updateOne({"email": email }, {"lastlogin" : moment().format("YYYY-MM-DD HH:mm:ss")});
-    if (!_update) {
-        await responseFunction(500, {"msg":"ERR_USER_UPDATE_FAILED"}, null, _update);
-        return SAVE_LOG(_response);
-    }
+    if (!_update) return SAVE_LOG(await responseFunction(res, 500, "ERR_USER_UPDATE_FAILED", null, _update));
     
     //#GENERATE JWT TOKEN AND WRITE ON DOCUMENT
     _user.password = undefined;
     _user.salt = undefined;
     const { jwttoken, tokenerror } = await jwtSign(_user);
-    if (!(tokenerror === null)) {
-        await responseFunction(500, {"msg":"ERR_JWT_GENERATE_FAILED"}, jwttoken, tokenerror);
-        return SAVE_LOG(_response);
-    }
-    await responseFunction(200, {"msg":"SUCCEED_USER_LOGIN"}, jwttoken);
-    return SAVE_LOG(_response);
+    if (!(tokenerror === null)) return await SAVE_LOG(await responseFunction(res, 500, "ERR_JWT_GENERATE_FAILED", null, tokenerror));
+    return await SAVE_LOG(await responseFunction(res, 200, "SUCCEED_USER_LOGIN", {"token":jwttoken}));
 });
 
 

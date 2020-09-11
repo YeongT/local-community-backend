@@ -1,33 +1,21 @@
-swagger: '2.0'
+openapi: 3.0.0
 info:
-  description: >-
-    This is api docs for local-community-service on implude project.<br> If you
-    want to know our service more, please visit <a
-    href="https://hakbong.me">HERE</a>.
+  description: >
+    This is api docs for local-community-service on implude project.
+    If you want to know our service more, please visit HERE.
   version: 1.0.0
   title: Local-Community
-  termsOfService: 'https://hakbong.me/terms/'
+  termsOfService: https://hakbong.me/terms/
   contact:
     email: contact@hakbong.me
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-host: api.hakbong.me
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 tags:
-  - name: "user"
-    description: "User Authentification API"
-  - name: "post"
-    description: "Community Article/Comment API"
-basePath: /
-schemes:
-  - https
-securityDefinitions:
-  JWTAuth:
-    type: apiKey
-    name: authorization
-    in: header
-  BasicAuth:
-    type: basic
+  - name: user
+    description: User Authentification API
+  - name: post
+    description: Community Article/Comment API
 paths:
   /auth/signup:
     post:
@@ -36,67 +24,66 @@ paths:
       summary: User Create
       description: api node for generating account
       operationId: createUser
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - BasicAuth: []
-      parameters:
-        - name: email
-          in: formData
-          description: email of account
-          required: true
-          type: string
-        - name: password
-          in: formData
-          description: password of account
-          required: true
-          type: string
-          format: password
-        - name: name
-          in: formData
-          description: nickname of account
-          required: true
-          type: string
-        - name: phone
-          in: formData
-          description: phone number of account (only number)
-          required: true
-          type: string
-        - name: gender
-          in: formData
-          description: gender of account
-          required: true
-          type: number
-          enum: [0,1,2]
-        - name: areaString
-          in: formData
-          type: string
-          description: user area of account
-          required: true
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+              type: object
+              properties:
+                email:
+                  description: email of account
+                  type: string
+                password:
+                  description: password of account
+                  type: string
+                  format: password
+                name:
+                  description: nickname of account
+                  type: string
+                phone:
+                  description: phone number of account (only number)
+                  type: string
+                gender:
+                  description: gender of account
+                  type: number
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                areaString:
+                  description: user area of account
+                  type: string
+              required:
+                - email
+                - password
+                - name
+                - phone
+                - gender
+                - areaString
+      responses:
+        "200":
           description: account generated and verification email sent.
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '409':
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/apiTokenResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/apiTokenResult"
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "409":
           description: email client provided duplicated.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '424':
-          description: >-
-            account generated but verification email wasn't sent.<br> please
-            resend verification email in application.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "424":
+          $ref: '#/components/responses/EmailFailed'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /auth/active:
     get:
       tags:
@@ -104,34 +91,31 @@ paths:
       summary: User Activation
       description: api node for activating account
       operationId: activeUser
-      produces:
-        - application/json
-        - application/xml
       parameters:
         - name: email
           in: query
           description: The user email for verification
           required: true
-          type: string
+          schema:
+            type: string
         - name: token
           in: query
           description: The token for verification
           required: true
-          type: string
-          format: password
+          schema:
+            type: string
+            format: password
       responses:
-        default:
-            description: default reponse model
-            schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+        "200":
           description: account email verification finished.
-        '409':
+        "409":
           description: account client provided not exist or already activated.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /auth/login:
     post:
       tags:
@@ -139,42 +123,44 @@ paths:
       summary: User Login
       description: api node for getting jwt token
       operationId: loginUser
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - BasicAuth: []
-      parameters:
-        - name: email
-          in: formData
-          description: email of account
-          required: true
-          type: string
-        - name: password
-          in: formData
-          description: password of account
-          required: true
-          type: string
-          format: password
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
-          description: user login succeed and json token published
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '409':
+              type: object
+              properties:
+                email:
+                  description: email of account
+                  type: string
+                password:
+                  description: password of account
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: user login succeed and json token generated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/apiTokenResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/apiTokenResult"
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "409":
           description: account client provided not exist
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /auth/jwtdecode:
     get:
       tags:
@@ -182,26 +168,27 @@ paths:
       summary: JWT TOKEN DECODE
       description: api node for decoding jwt token
       operationId: jwtdecode
-      produces:
-        - application/json
-        - application/xml
       parameters:
         - name: token
           in: query
           description: The token for verification
           required: true
-          type: string
-      responses:
-        default:
-            description: default reponse model
-            schema:
-              $ref: "#/definitions/apiResult"
-        '200':
-          description: jwt token decoded
           schema:
-            $ref: "#/definitions/UserInfo"
-        '500':
+            type: string
+      responses:
+        "200":
+          description: jwt token decoded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/decodeTokenResult"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/decodeTokenResult"
+        "500":
           description: jwt token decode failed
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /post/new-article:
     put:
       tags:
@@ -209,57 +196,48 @@ paths:
       summary: Post New Article
       description: api node for posting new article
       operationId: newarticle
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - JWTAuth: []
-      parameters:
-        - name: target
-          in: formData
-          description: community id for article 
-          required: true
-          type: string
-        - name: title
-          in: formData
-          description: title of article
-          required: true
-          type: string
-        - name: text
-          in: formData
-          description: content of article
-          required: true
-          type: string
-        - name: tags
-          in: formData
-          description: tags of article
-          required: true
-          type: string
-        - name: picture
-          in: formData
-          description: pictures of article
-          type: string
-        - name: link
-          in: formData
-          description: links of article
-          type: string
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+              type: object
+              properties:
+                target:
+                  description: community id for article
+                  type: string
+                title:
+                  description: title of article
+                  type: string
+                text:
+                  description: content of article
+                  type: string
+                tags:
+                  description: tags of article
+                  type: string
+                picture:
+                  description: pictures of article
+                  type: string
+                link:
+                  description: links of article
+                  type: string
+              required:
+                - target
+                - title
+                - text
+                - tags
+      responses:
+        "200":
           description: article posted successfully.
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /post/new-comment:
     put:
       tags:
@@ -267,55 +245,46 @@ paths:
       summary: Post New Comment
       description: api node for posting new comment
       operationId: newcomment
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - JWTAuth: []
-      parameters:
-        - name: target
-          in: formData
-          description: comment or article id for comment
-          required: true
-          type: string
-        - name: text
-          in: formData
-          description: content of comment
-          required: true
-          type: string
-        - name: picture
-          in: formData
-          description: pictures of comment
-          type: string
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+              type: object
+              properties:
+                target:
+                  description: comment or article id for comment
+                  type: string
+                text:
+                  description: content of comment
+                  type: string
+                picture:
+                  description: pictures of comment
+                  type: string
+              required:
+                - target
+                - text
+      responses:
+        "200":
           description: comment posted successfully.
-        '401':
+        "401":
           description: userjwt is invalid to post comment.
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
-  /post/load-articles/{target}:
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
+  "/post/load-articles/{target}":
     get:
       tags:
         - post
       summary: Load Articles From Community
       description: api node for loading articles in community.
       operationId: loadarticles
-      produces:
-        - application/json
-        - application/xml
       security:
         - JWTAuth: []
       parameters:
@@ -323,34 +292,33 @@ paths:
           in: path
           description: comment or article id for comment
           required: true
-          type: string
-      responses:
-        default:
-            description: default reponse model
-            schema:
-              $ref: "#/definitions/apiResult"
-        '200':
-          description: loading articles process finished.
           schema:
-              $ref: "#/definitions/resArticles"
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
-  /post/load-comments/{target}:
+            type: string
+      responses:
+        "200":
+          description: loading articles process finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resArticles"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/resArticles"
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
+  "/post/load-comments/{target}":
     get:
       tags:
         - post
       summary: Load Comments From Article or Comment
       description: api node for loading comments in comment or article.
       operationId: loadcomment
-      produces:
-        - application/json
-        - application/xml
       security:
         - JWTAuth: []
       parameters:
@@ -358,67 +326,71 @@ paths:
           in: path
           description: comment or article id for comment
           required: true
-          type: string
-      responses:
-        default:
-            description: default reponse model
-            schema:
-              $ref: "#/definitions/apiResult"
-        '200':
-          description: loading comments process finished.
           schema:
-              $ref: "#/definitions/resComments"
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
-  /post/load-editlogs/{objectType}/{target}:
+            type: string
+      responses:
+        "200":
+          description: loading comments process finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resComments"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/resComments"
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
+  "/post/load-editlogs/{objectType}/{target}":
     get:
       tags:
         - post
       summary: Load Edit History From Article or Comment
       description: api node for loading editlogs in comment or article.
       operationId: loadeditlog
-      produces:
-        - application/json
-        - application/xml
       security:
         - JWTAuth: []
       parameters:
         - name: objectType
           in: path
           description: select object type which you want to query.
-          type: string
-          enum: ["article","comment"]
           required: true
+          schema:
+            type: string
+            enum:
+              - article
+              - comment
         - name: target
           in: path
           description: comment or article id for loading history.
           required: true
-          type: string
-      responses:
-        default:
-            description: default reponse model
-            schema:
-              $ref: "#/definitions/apiResult"
-        '200':
-          description: loading comments process finished.
           schema:
-              $ref: "#/definitions/resEditlogs"
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '409':
+            type: string
+      responses:
+        "200":
+          description: loading comments process finished.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/resEditlogs"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/resEditlogs"
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "409":
           description: article or comment object client provided doesn't exist.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /post/mod-article:
     post:
       tags:
@@ -426,59 +398,50 @@ paths:
       summary: Edit Exist Article
       description: api node for editing article
       operationId: modarticle
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - JWTAuth: []
-      parameters:
-        - name: target
-          in: formData
-          description: object id which you want to modify
-          required: true
-          type: string
-        - name: title
-          in: formData
-          description: title of article
-          required: true
-          type: string
-        - name: text
-          in: formData
-          description: content of article
-          required: true
-          type: string
-        - name: tags
-          in: formData
-          description: tags of article
-          required: true
-          type: string
-        - name: picture
-          in: formData
-          description: pictures of article
-          type: string
-        - name: link
-          in: formData
-          description: links of article
-          type: string
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+              type: object
+              properties:
+                target:
+                  description: object id which you want to modify
+                  type: string
+                title:
+                  description: title of article
+                  type: string
+                text:
+                  description: content of article
+                  type: string
+                tags:
+                  description: tags of article
+                  type: string
+                picture:
+                  description: pictures of article
+                  type: string
+                link:
+                  description: links of article
+                  type: string
+              required:
+                - target
+                - title
+                - text
+                - tags
+      responses:
+        "200":
           description: article edited successfully.
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '409':
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "409":
           description: comment object client provided doesn't exist.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
   /post/mod-comment:
     post:
       tags:
@@ -486,226 +449,245 @@ paths:
       summary: Edit Exist Comment
       description: api node for editing article
       operationId: modcomment
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - application/x-www-form-urlencoded
       security:
         - JWTAuth: []
-      parameters:
-        - name: target
-          in: formData
-          description: object id which you want to modify
-          required: true
-          type: string
-        - name: text
-          in: formData
-          description: content of comment
-          required: true
-          type: string
-        - name: picture
-          in: formData
-          description: pictures of comment
-          type: string
-      responses:
-        default:
-            description: default reponse model
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: "#/definitions/apiResult"
-        '200':
+              type: object
+              properties:
+                target:
+                  description: object id which you want to modify
+                  type: string
+                text:
+                  description: content of comment
+                  type: string
+                picture:
+                  description: pictures of comment
+                  type: string
+              required:
+                - target
+                - text
+      responses:
+        "200":
           description: comment edited successfully.
-        '403':
-          description: >-
-            Request denied because you are not authorized.<br>
-            Please send correct authorization header.
-        '409':
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "409":
           description: comment object client provided doesn't exist.
-        '412':
-          description: data client provided doesn't satisfy format.
-        '500':
-          description: unknown server error occured (cause of network status)
-definitions:
-  apiResult:
-    type: object
-    properties:
-      result: 
-        type: object
-        properties:
-          statusCode:
-            type: number
-          body:
-            type: object
-            properties:
-              msg:
-                type: string
-          output:
-            type: object
-          error:
-            type: string
-  UserInfo:
-    type: object
-    properties:
-      result: 
-        type: object
-        properties:
-          statusCode:
-            type: number
-          body:
-            type: object
-            properties:
-              msg:
-                type: string
-          output:
-            type: object
-            properties:
-              enable: 
-                type: boolean
-              email:
-                type: string
-              name:
-                type: string
-              gender:
-                type: number
-              phone:
-                type: string
-              areaString:
-                type: string
-              lastlogin:
-                type: string
-              profileimg:
-                type: string
-              iat:
-                type: number
-              exp:
-                type: number
-          error:
-            type: string
-  resArticles:
-    type: object
-    properties:
-      result: 
-        type: object
-        properties:
-          statusCode:
-            type: number
-          body:
-            type: object
-            properties:
-              msg:
-                type: string
-          output:
-            type: object
-            properties:
-              count:
-                type: number
-              articles:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    timestamp:
-                      type: string
-                    content:
-                      type: object
-                      properties:
-                        title:
-                          type: string
-                        text:
-                          type: string
-                        tags:
-                          type: array
-                          items:
-                            type: string
-                        attach:
-                          type: object
-                          properties:
-                            picture:
-                              type: array
-                              items:
-                                type: string
-                            link:
-                              type: array
-                              items:
-                                type: string
-                    owner: 
-                      type: string
-                    modify:
-                      type: object
-                      properties:
-                        ismodified:
-                          type: boolean
-                          default: false
-  resComments:
-    type: object
-    properties:
-      result: 
-        type: object
-        properties:
-          statusCode:
-            type: number
-          body:
-            type: object
-            properties:
-              msg:
-                type: string
-          output:
-            type: object
-            properties:
-              count:
-                type: number
-              comments:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    timestamp:
-                      type: string
-                    content:
-                      type: object
-                      properties:
-                        text:
-                          type: string
-                        picture:
-                          type: array
-                          items:
-                            type: string
-                    owner: 
-                      type: string
-                    modify:
-                      type: object
-                      properties:
-                        ismodified:
-                          type: boolean
-                          default: false
-  resEditlogs:
-    type: object
-    properties:
-      result: 
-        type: object
-        properties:
-          statusCode:
-            type: number
-          body:
-            type: object
-            properties:
-              msg:
-                type: string
-          output:
-            type: object
-            properties:
-              count:
-                type: number
-              history:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    timestamp:
-                      type: string
-                    content:
-                      type: object
-                      example: object
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
+        default:
+          $ref: '#/components/responses/DefaultModel'
 externalDocs:
   description: Find out more about our team
-  url: 'https://implude.com/teams/aidu'
+  url: https://implude.com/teams/aidu
+servers:
+  - url: https://api.hakbong.me/
+components:
+  responses:
+    NotAuthorized:
+      description: >
+        Request denied because you are not authorized.
+        Please send correct authorization header.
+    LoginDenied:
+      description: user action denied because account closed.
+    FormatError:
+      description: data client provided doesn't satisfy format.
+    EmailFailed:
+      description: >
+        account generated but verification email wasn't sent.
+        Please resend verification email in application.
+    ServerError:
+      description: api server connection is unstable (cause of network status)
+    DefaultModel:
+      description: default response model
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/apiResult"
+        application/xml:
+          schema:
+            $ref: "#/components/schemas/apiResult"
+  securitySchemes:
+    JWTAuth:
+      type: apiKey
+      name: authorization
+      in: header
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    apiResult:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+        error:
+          type: string
+    apiTokenResult:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+        error:
+          type: string
+    decodeTokenResult:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+          properties:
+            decode:
+              type: object
+              properties:
+                enable:
+                  type: boolean
+                email:
+                  type: string
+                name:
+                  type: string
+                gender:
+                  type: number
+                phone:
+                  type: string
+                areaString:
+                  type: string
+                lastlogin:
+                  type: string
+                profileimg:
+                  type: string
+                iat:
+                  type: number
+                exp:
+                  type: number
+        error:
+          type: string
+    resArticles:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+          properties:
+            count:
+              type: number
+            articles:
+              type: array
+              items:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                  content:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      text:
+                        type: string
+                      tags:
+                        type: array
+                        items:
+                          type: string
+                      attach:
+                        type: object
+                        properties:
+                          picture:
+                            type: array
+                            items:
+                              type: string
+                          link:
+                            type: array
+                            items:
+                              type: string
+                  owner:
+                    type: string
+                  modify:
+                    type: object
+                    properties:
+                      ismodified:
+                        type: boolean
+                        default: false
+        error:
+          type: string
+    resComments:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+          properties:
+            count:
+              type: number
+            comments:
+              type: array
+              items:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                  content:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      picture:
+                        type: array
+                        items:
+                          type: string
+                  owner:
+                    type: string
+                  modify:
+                    type: object
+                    properties:
+                      ismodified:
+                        type: boolean
+                        default: false
+        error:
+          type: string
+    resEditlogs:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        bodymsg:
+          type: string
+        output:
+          type: object
+          properties:
+            count:
+              type: number
+            history:
+              type: array
+              items:
+                type: object
+                properties:
+                  timestamp:
+                    type: string
+                  content:
+                    type: object
+                    example: object
+        error:
+          type: string
