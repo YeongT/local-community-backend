@@ -11,9 +11,11 @@ const router = Router();
 
 import auth from "./auth";
 import post from "./post";
+import jwtauth from "./jwtauth";
 
 router.use("/auth",auth);
 router.use("/post",post);
+router.use("/jwtauth", jwtauth);
 
 const swaggerDefinition = YAML.load(pathJoin(__dirname, "swagger.yaml"));
 const options = {
