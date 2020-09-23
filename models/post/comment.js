@@ -4,7 +4,12 @@ import { commentEditLog as editLog } from "../../routes/coms/buildEditlog";
 const Comment = new Schema({
   timestamp: String,
   target: {
-    type: Schema.Types.ObjectId
+    community: {
+      type: Schema.Types.ObjectId
+    },
+    article: {
+      type: Schema.Types.ObjectId
+    }
   },
   content: {
     text: String,

@@ -11,7 +11,7 @@ import User from "../../models/user";
 const router = Router();
 router.get ("/", async (req,res) => {
     //#CHECK DATABASE AND WHETHER PROVIDED POST DATA IS VALID
-    if (!(db_error === null)) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED");
+    if (db_error !== null) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED");
     
     const { emailchk } = await loadRegex();
     const { email, token } = req.query;
@@ -19,7 +19,7 @@ router.get ("/", async (req,res) => {
     if (!(emailchk.test(email))) return await responseFunction(res, 412, "ERR_DATA_FORMAT_INVALID");
 
     //#FIND USER ON DATABASE USING EMAIL
-    const _user = await User.findOne({"email" : email, "enable" : false});
+    const _user = await User.findOne({"account.email" : email, "account.status" : "unknown"});
     if (_user === null || _user === undefined) return await responseFunction(res, 409, "ERR_USER_NOT_FOUND");
 
     //#CHECK WHETHER TOKEN IS VALID
@@ -43,7 +43,7 @@ router.get ("/", async (req,res) => {
     };  
 
     //#CHANGE USER ENABLE STATE
-    const _verify = await User.updateOne({"email" : email , "enable" : false }, {"enable" : true});
+    const _verify = await User.updateOne({"account.email" : email , "account.status" : "unknown" }, {"enable" : "verified"});
     if (!_verify) return await SAVE_LOG(await responseFunction(res, 500, "ERR_USER_UPDATE_FAILED", null, _verify));
     
     //#ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT

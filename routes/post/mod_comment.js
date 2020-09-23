@@ -14,12 +14,12 @@ router.post ("/", async (req,res) => {
     //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
     const { text } = req.body;
     var { target, picture } = req.body;
-    if (!(db_error === null)) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (db_error !== null) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!(target && text)) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED", null);
 
     //#CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
-        target = await mongoose.Types.ObjectId(target);
+        target = mongoose.Types.ObjectId(target);
         if (picture) picture = await JSON.parse(picture);
     }
     catch (err) {
@@ -30,7 +30,7 @@ router.post ("/", async (req,res) => {
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
     const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
-    if (!(jwterror === null)) return await responseFunction(res, 403, jwtbody, null, jwterror);
+    if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
    //#GET COMMENT OBJECT WHOSE TARGET IS PROVIDED OBJECT ID
     const _comment = await Comment.findOne({
@@ -51,7 +51,7 @@ router.post ("/", async (req,res) => {
             originip : getClientIp(req),
             category : "MOD_COMMENT",
             details : _comment.content,
-            result : _response.result
+            result : _response
         });
         createLog.save(async (err) => {
             if (err) console.error(err);
