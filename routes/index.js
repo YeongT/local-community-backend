@@ -10,11 +10,9 @@ import { serve as swServe, setup as swSetup} from "swagger-ui-express";
 const router = Router();
 
 import auth from "./auth";
-import list from "./list";
 import post from "./post";
 
 router.use("/auth",auth);
-router.use("/list",list);
 router.use("/post",post);
 
 const swaggerDefinition = YAML.load(pathJoin(__dirname, "swagger.yaml"));

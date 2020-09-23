@@ -6,18 +6,19 @@ import responseFunction from "../coms/apiResponse";
 import Comment from "../../models/post/comment";
 
 const router = Router();
-router.get ("/:target", async (req,res) => {//#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
+router.get ("/:target", async (req,res) => {
+    //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
     var { target } = req.params;
-    if (!(db_error === null)) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED", null);
-    if (!(target)) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED", null);
+    if (db_error !== null) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED", null);
+    if (!target) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED", null);
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
     const { jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
-    if (!(jwterror === null)) return await responseFunction(res, 403, jwtbody, null, jwterror);
+    if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
     //#GENERATE RESPONSE OUTPUT OBJECT
     try {
-        target = await mongoose.Types.ObjectId(target);
+        target = mongoose.Types.ObjectId(target);
     }
     catch (parseerr) 
     {
@@ -29,7 +30,7 @@ router.get ("/:target", async (req,res) => {//#CHECK DATABASE STATE AND WHETHER 
      * REMOVE USELESS FILED TO SAVE TRAFFIC
      */
     const _comment = await Comment.find({
-        target,
+        "target.article": target,
         "visible": true,
         "suecount": {
             "$lte": 5

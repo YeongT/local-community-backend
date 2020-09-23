@@ -4,7 +4,7 @@ import { articleEditLog as editLog } from "../../routes/coms/buildEditlog";
 const Article = new Schema({
   timestamp: String,
   target: {
-    type: Schema.Types.ObjectId
+    community: Schema.Types.ObjectId
   },
   content: {
     title: String,

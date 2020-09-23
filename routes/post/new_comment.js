@@ -13,12 +13,12 @@ router.put ("/", async (req,res) => {
     //#CHECK DATABASE STATE AND WHETHER PROVIDED POST DATA IS VALID 
     const { text } = req.body;
     var { target, picture } = req.body;
-    if (!(db_error === null)) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED");
+    if (db_error !== null) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED");
     if (!(target && text)) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED");
 
     //#VALIDATE TARGET OBJECT ID && CHANGE STRING OBJECT TO ARRAY OBJECT
     try {
-        target = await mongoose.Types.ObjectId(target);
+        target = mongoose.Types.ObjectId(target);
         if (picture) picture = await JSON.parse(picture);
     }
     catch (err) {
@@ -29,12 +29,15 @@ router.put ("/", async (req,res) => {
     
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
     const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
-    if (!(jwterror === null)) return await responseFunction(res, 403, jwtbody, null, jwterror);
+    if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
     //#GENERATE COMMENT OBJECT
     const postComment = new Comment({
         timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
-        target,
+        target: {
+            community: target,
+            article: target
+        },
         content: {
             text,
             picture

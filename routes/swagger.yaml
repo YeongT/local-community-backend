@@ -14,6 +14,8 @@ info:
 tags:
   - name: user
     description: User Authentification API
+  - name: community
+    description: User Communtiy Manage API
   - name: post
     description: Community Article/Comment API
 paths:
@@ -187,6 +189,36 @@ paths:
                 $ref: "#/components/schemas/decodeTokenResult"
         "500":
           description: jwt token decode failed
+        default:
+          $ref: '#/components/responses/DefaultModel'
+  /group/create:
+    post:
+      tags:
+        - community
+      summary: Create new community
+      description: api node for creating new community
+      operationId: newcommunity
+      security:
+        - JWTAuth: []
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name: 
+                  description: name of community
+              required:
+                - name
+      responses:
+        "200":
+          description: community created successfully.
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
         default:
           $ref: '#/components/responses/DefaultModel'
   /post/new-article:
