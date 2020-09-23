@@ -7,7 +7,7 @@ import responseFunction from "../coms/apiResponse";
 import { getClientIp } from "request-ip";
 import { readFileSync } from "fs";
 import { db_error } from "../../app";
-import { jwtSign } from "../coms/jwtToken.js";
+import { getNewSignedJWTPair as jwtSign } from "../jwtauth/jwtSign";
 import moment from "moment";
 import Token from "../../models/token";
 import authLog from "../../models/authlog";
@@ -73,6 +73,15 @@ router.post ("/", async (req,res) => {
         });
     };
 
+    //#SIGN NEW USER JWTTOKEN BEFORE SAVE
+    const userJWTObject = {
+        account: createUser.account,
+        profile: createUser.profile,
+        service: createUser.service
+    }, { jwttoken, signerror } = await jwtSign(userJWTObject, "5d");
+    if (signerror !== null) return SAVE_LOG(await responseFunction(res, 500, "ERR_JWT_TOKEN_GENERATE_FAILED", null, signerror));
+
+    //#SAVE USER ACCOUNT TO DATABASE
     await createUser.save(async (save_error) => {
         //# HANDLE WHEN SAVE TASK FAILED
         if (save_error) return await responseFunction(res, 500, "ERR_USER_SAVE_FAILED", null, save_error);
@@ -105,9 +114,6 @@ router.post ("/", async (req,res) => {
                 html: emailData
             };
 
-            createUser.auth = undefined;
-            const { jwttoken, tokenerror } = await jwtSign(createUser);
-            if (tokenerror !== null) return await SAVE_LOG(await responseFunction(res, 500, "ERR_JWT_GENERATE_FAILED", null, tokenerror));
             const sendMail = await transporter.sendMail(mailOptions);
             if (!sendMail) throw("UNKNOWN_MAIL_SEND_ERROR_ACCURED");
             return await SAVE_LOG(await responseFunction(res, 200, "SUCCEED_USER_CREATED", {"token":jwttoken}));

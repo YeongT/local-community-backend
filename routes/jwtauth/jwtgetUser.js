@@ -44,7 +44,7 @@ const jwtgetUser = async (req, jwtToken, options) => {
     };
 
     //#HANDLE THIS NODE MORE WHEN OPTIONS ARE EXIST
-    if (!(objectID === undefined || objectID === null)) {
+    if (!(options === undefined || options === null)) {
         const verify_error = await jwtVerifyAccess(options.type, options.target, options.objectID);
         if(verify_error !== null) return await SAVE_LOG(jwtUserResponse("ERR_JWT_AUTHENTICATION_FAILED", null, verify_error));
     } 

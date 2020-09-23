@@ -12,17 +12,17 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 tags:
-  - name: user
+  - name: account
     description: User Authentification API
-  - name: community
-    description: User Communtiy Manage API
+  - name: jwtauth
+    description: JwtToken Authentication API
   - name: post
     description: Community Article/Comment API
 paths:
   /auth/signup:
     post:
       tags:
-        - user
+        - account
       summary: User Create
       description: api node for generating account
       operationId: createUser
@@ -89,7 +89,7 @@ paths:
   /auth/active:
     get:
       tags:
-        - user
+        - account
       summary: User Activation
       description: api node for activating account
       operationId: activeUser
@@ -121,7 +121,7 @@ paths:
   /auth/login:
     post:
       tags:
-        - user
+        - account
       summary: User Login
       description: api node for getting jwt token
       operationId: loginUser
@@ -139,13 +139,16 @@ paths:
                 password:
                   description: password of account
                   type: string
-                  format: password
+                  format: password 
+                refreshToken:
+                  description: refreshToken to block
+                  type: string
               required:
                 - email
                 - password
       responses:
         "200":
-          description: user login succeed and json token generated.
+          description: user login succeed and json token published.
           content:
             application/json:
               schema:
@@ -153,33 +156,33 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/apiTokenResult"
-        "403":
-          $ref: '#/components/responses/NotAuthorized'
         "409":
-          description: account client provided not exist
+          description: no accounts were found that match the information client entered.
         "412":
-          $ref: '#/components/responses/FormatError'
+          $ref: "#/components/responses/FormatError"
+        "423":
+          $ref: "#/components/responses/LoginDenied"
         "500":
-          $ref: '#/components/responses/ServerError'
+          $ref: "#/components/responses/ServerError"
         default:
-          $ref: '#/components/responses/DefaultModel'
-  /auth/jwtdecode:
+          $ref: "#/components/responses/DefaultModel"
+  /jwtauth/decode/{accessToken}:
     get:
       tags:
-        - user
-      summary: JWT TOKEN DECODE
-      description: api node for decoding jwt token
-      operationId: jwtdecode
+        - jwtauth
+      summary: JWT AccessToken Decode
+      description: api node for decoding JWT Access-Token
+      operationId: jwtAccessTokenDecode
       parameters:
-        - name: token
-          in: query
-          description: The token for verification
+        - name: accessToken
+          in: path
+          description: accessToken to decode token
           required: true
           schema:
             type: string
       responses:
         "200":
-          description: jwt token decoded
+          description: JWT accessToken decoded successfully.
           content:
             application/json:
               schema:
@@ -188,39 +191,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/decodeTokenResult"
         "500":
-          description: jwt token decode failed
+          description: JWT accessToken decode failed.
         default:
-          $ref: '#/components/responses/DefaultModel'
-  /group/create:
-    post:
-      tags:
-        - community
-      summary: Create new community
-      description: api node for creating new community
-      operationId: newcommunity
-      security:
-        - JWTAuth: []
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                name: 
-                  description: name of community
-              required:
-                - name
-      responses:
-        "200":
-          description: community created successfully.
-        "403":
-          $ref: '#/components/responses/NotAuthorized'
-        "412":
-          $ref: '#/components/responses/FormatError'
-        "500":
-          $ref: '#/components/responses/ServerError'
-        default:
-          $ref: '#/components/responses/DefaultModel'
+          $ref: "#/components/responses/DefaultModel"
   /post/new-article:
     put:
       tags:
@@ -456,6 +429,7 @@ paths:
                 link:
                   description: links of article
                   type: string
+                
               required:
                 - target
                 - title
@@ -588,22 +562,33 @@ components:
             decode:
               type: object
               properties:
-                enable:
-                  type: boolean
-                email:
-                  type: string
-                name:
-                  type: string
-                gender:
-                  type: number
-                phone:
-                  type: string
-                areaString:
-                  type: string
-                lastlogin:
-                  type: string
-                profileimg:
-                  type: string
+                account:
+                  type: object
+                  properties: 
+                    email:
+                      type: string
+                    status: 
+                      type: string
+                    joined:
+                      type: string
+                profile:
+                  type: object
+                  properties:
+                    imageurl:
+                      type: string
+                    name: 
+                      type: string
+                    phone:
+                      type: string
+                    gender:
+                      type: number
+                    areaString:
+                      type: string
+                  service:
+                    type: object
+                    properties:
+                      community:
+                        type: Array
                 iat:
                   type: number
                 exp:
