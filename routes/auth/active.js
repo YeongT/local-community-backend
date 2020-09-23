@@ -43,7 +43,7 @@ router.get ("/", async (req,res) => {
     };  
 
     //#CHANGE USER ENABLE STATE
-    const _verify = await User.updateOne({"account.email" : email , "account.status" : "unknown" }, {"enable" : "verified"});
+    const _verify = await User.updateOne({"account.email" : email , "account.status" : "unknown" }, {"account.status" : "verified"});
     if (!_verify) return await SAVE_LOG(await responseFunction(res, 500, "ERR_USER_UPDATE_FAILED", null, _verify));
     
     //#ALL TASK FINISHED, DELETE TOKENS AND SHOW OUTPUT

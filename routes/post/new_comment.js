@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getClientIp } from "request-ip";
-import { jwtgetUser } from "../coms/jwtgetUser";
+import { jwtgetUser } from "../jwtauth/jwtgetUser";
 import { db_error } from "../../app";
 import responseFunction from "../coms/apiResponse";
 import mongoose from "mongoose";
@@ -28,7 +28,7 @@ router.put ("/", async (req,res) => {
     }
     
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
-    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req, req.headers.authorization);
     if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
     //#GENERATE COMMENT OBJECT
