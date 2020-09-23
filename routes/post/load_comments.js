@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { jwtgetUser } from "../coms/jwtgetUser";
+import { jwtgetUser } from "../jwtauth/jwtgetUser";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import responseFunction from "../coms/apiResponse";
@@ -13,7 +13,7 @@ router.get ("/:target", async (req,res) => {
     if (!target) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED", null);
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
-    const { jwtbody, jwterror } = await jwtgetUser(req.headers.authorization);
+    const { jwtbody, jwterror } = await jwtgetUser(req, req.headers.authorization);
     if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
     //#GENERATE RESPONSE OUTPUT OBJECT
