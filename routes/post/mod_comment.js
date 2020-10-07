@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getClientIp } from "request-ip";
 import jwtgetUser from "../jwtauth/jwtgetUser";
+import jwtRefresh from "../jwtauth/jwtRefresh";
 import { db_error } from "../../app";
 import { genEditLog } from "../coms/buildEditlog";
 import responseFunction from "../coms/apiResponse";
@@ -26,6 +27,13 @@ router.post ("/", async (req,res) => {
         if (err.toString() === "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters")
             return await responseFunction(res, 412, "ERR_TARGET_FORMAT_INVALID", null, err);
         return await responseFunction(res, 412, "ERR_DATA_ARRAY_FORMAT_INVALID", null, err);
+    }
+
+    //#REFRESH ACCESS TOKEN USING REFRESH TOKEN WHEN REFRESH TOKEN PROVIDED
+    if (req.headers.refreshToken) {
+        const { newtoken, tokenerror } = await jwtRefresh(req, req.headers.authorization, req.headers.refreshToken);
+        if (tokenerror !== null) return await responseFunction(res, 403, "ERR_JWT_AUTHENTIFCATION_FAILED", null, tokenerror);
+        else req.headers.authorization = newtoken;
     }
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET

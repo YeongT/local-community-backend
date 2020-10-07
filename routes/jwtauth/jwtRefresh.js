@@ -10,6 +10,9 @@ import User from "../../models/user";
 const jwtRefresh = async (req, accesstoken, refreshtoken) => {
     var _response = { "newtoken": null, "tokenerror" : {"refresherror":true, "errordetail":true}};
 
+    //#CHECK PARAMETERS ARE NOT UNDEFINED
+    if (req && accesstoken && refreshtoken) return _response;
+
     //#CHECK WHETHER REFRESH TOKEN IS VALID
     const _refreshtoken = await jwtVerify(refreshtoken);
     if (_refreshtoken.tokenerror !== null) {
