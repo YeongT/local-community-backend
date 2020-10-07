@@ -1,8 +1,8 @@
 import { model, Schema } from "mongoose";
 
 const jwtBlock = new Schema({
-  "blockdate": String,
-  "blocktoken": String
+  blockdate: String,
+  blocktoken: String
 }, {
   versionKey: false
 });

@@ -584,11 +584,20 @@ components:
                       type: number
                     areaString:
                       type: string
-                  service:
-                    type: object
-                    properties:
-                      community:
-                        type: Array
+                service:
+                  type: object
+                  properties:
+                    community:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          role:
+                            type: string
+                          joined:
+                            type: string
                 iat:
                   type: number
                 exp:
