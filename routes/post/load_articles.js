@@ -1,5 +1,6 @@
 import { Router } from "express";
 import jwtgetUser from "../jwtauth/jwtgetUser";
+import jwtRefresh from "../jwtauth/jwtRefresh";
 import { db_error } from "../../app";
 import mongoose from "mongoose";
 import responseFunction from "../coms/apiResponse";
@@ -11,6 +12,13 @@ router.get ("/:target", async (req,res) => {
     var { target } = req.params;
     if (db_error !== null) return await responseFunction(res, 500, "ERR_DATABASE_NOT_CONNECTED", null);
     if (!target) return await responseFunction(res, 412, "ERR_DATA_NOT_PROVIDED", null);
+
+    //#REFRESH ACCESS TOKEN USING REFRESH TOKEN WHEN REFRESH TOKEN PROVIDED
+    if (req.headers.refreshToken) {
+        const { newtoken, tokenerror } = await jwtRefresh(req, req.headers.authorization, req.headers.refreshToken);
+        if (tokenerror !== null) return await responseFunction(res, 403, "ERR_JWT_AUTHENTIFCATION_FAILED", null, tokenerror);
+        else req.headers.authorization = newtoken;
+    }
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
     const { jwtbody, jwterror } = await jwtgetUser(req, req.headers.authorization, {"type":"article", target});
