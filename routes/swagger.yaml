@@ -203,6 +203,12 @@ paths:
       operationId: newarticle
       security:
         - JWTAuth: []
+      parameters: 
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -252,6 +258,12 @@ paths:
       operationId: newcomment
       security:
         - JWTAuth: []
+      parameters: 
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -292,7 +304,12 @@ paths:
       operationId: loadarticles
       security:
         - JWTAuth: []
-      parameters:
+      parameters: 
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
         - name: target
           in: path
           description: comment or article id for comment
@@ -327,6 +344,11 @@ paths:
       security:
         - JWTAuth: []
       parameters:
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
         - name: target
           in: path
           description: comment or article id for comment
@@ -361,6 +383,11 @@ paths:
       security:
         - JWTAuth: []
       parameters:
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
         - name: objectType
           in: path
           description: select object type which you want to query.
@@ -405,6 +432,12 @@ paths:
       operationId: modarticle
       security:
         - JWTAuth: []
+      parameters:
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -457,6 +490,12 @@ paths:
       operationId: modcomment
       security:
         - JWTAuth: []
+      parameters: 
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -562,42 +601,22 @@ components:
             decode:
               type: object
               properties:
-                account:
-                  type: object
-                  properties: 
-                    email:
-                      type: string
-                    status: 
-                      type: string
-                    joined:
-                      type: string
-                profile:
-                  type: object
-                  properties:
-                    imageurl:
-                      type: string
-                    name: 
-                      type: string
-                    phone:
-                      type: string
-                    gender:
-                      type: number
-                    areaString:
-                      type: string
-                service:
-                  type: object
-                  properties:
-                    community:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: number
-                          role:
-                            type: string
-                          joined:
-                            type: string
+                enable:
+                  type: boolean
+                email:
+                  type: string
+                name:
+                  type: string
+                gender:
+                  type: number
+                phone:
+                  type: string
+                areaString:
+                  type: string
+                lastlogin:
+                  type: string
+                profileimg:
+                  type: string
                 iat:
                   type: number
                 exp:
