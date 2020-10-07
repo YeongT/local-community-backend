@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getClientIp } from "request-ip";
-import { jwtgetUser } from "../jwtauth/jwtgetUser";
+import jwtgetUser from "../jwtauth/jwtgetUser";
 import { db_error } from "../../app";
 import { genEditLog } from "../coms/buildEditlog";
 import responseFunction from "../coms/apiResponse";
@@ -29,7 +29,7 @@ router.post ("/", async (req,res) => {
     }
 
     //#VALIDATE WHERE USER JWT TOKEN IS VALID AND ACCPETABLE TO TARGET
-    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req, req.headers.authorization);
+    const { jwtuser, jwtbody, jwterror } = await jwtgetUser(req, req.headers.authorization, {"type":"comment", target});
     if (jwterror !== null) return await responseFunction(res, 403, jwtbody, null, jwterror);
 
    //#GET COMMENT OBJECT WHOSE TARGET IS PROVIDED OBJECT ID

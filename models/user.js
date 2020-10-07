@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import communityInfo from "./group/userdetail";
 
 const User = new Schema({
   account: {
@@ -11,7 +12,9 @@ const User = new Schema({
   },
   service: {
     community: {
-      type: Array,
+      type: [
+        communityInfo
+      ],
       default: []
     }
   },
