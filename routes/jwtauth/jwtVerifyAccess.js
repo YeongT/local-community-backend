@@ -30,12 +30,12 @@ const jwtVerifyAccess = async (userid, type, target) => {
         if (!_community) return returnResult(null, _community);
 
         //#FIND USER PRIVILEGE IN COMMUNITY MEMBER LIST
-        const index = await _community.userlist.findIndex(obj => obj.user === userid);
-        if (index === -1) return returnResult(null, "ERR_JWT_NOT_USER_IN_COMMUNITY");
+        const _useraccess = await _community.userlist.find((obj) => obj.user === userid);
+        if (_useraccess === undefined) return returnResult(null, "ERR_JWT_NOT_USER_IN_COMMUNITY");
 
-        const _privilege = await Privilege.findOne({"_id":_community.userlist[index].privilege, "user":userid});
-        if (!privilege) return returnResult(null, _privilege);
-        return returnResult(privilege.permission, null);
+        const _privilege = await Privilege.findOne({"_id": _useraccess.privilege, "user":userid});
+        if (!_privilege) return returnResult(null, _privilege);
+        return returnResult(_privilege.permission, null);
     }
     return returnResult(null, "ERR_VERIFY_USER_NOT_PROVIDED");
 };

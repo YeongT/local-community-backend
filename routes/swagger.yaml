@@ -70,10 +70,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/apiTokenResult"
+                $ref: '#/components/schemas/apiTokenResult'
             application/xml:
               schema:
-                $ref: "#/components/schemas/apiTokenResult"
+                $ref: '#/components/schemas/apiTokenResult'
         "403":
           $ref: '#/components/responses/NotAuthorized'
         "409":
@@ -152,20 +152,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/apiTokenResult"
+                $ref: '#/components/schemas/apiTokenResult'
             application/xml:
               schema:
-                $ref: "#/components/schemas/apiTokenResult"
+                $ref: '#/components/schemas/apiTokenResult'
         "409":
           description: no accounts were found that match the information client entered.
         "412":
-          $ref: "#/components/responses/FormatError"
+          $ref: '#/components/responses/FormatError'
         "423":
-          $ref: "#/components/responses/LoginDenied"
+          $ref: '#/components/responses/LoginDenied'
         "500":
-          $ref: "#/components/responses/ServerError"
+          $ref: '#/components/responses/ServerError'
         default:
-          $ref: "#/components/responses/DefaultModel"
+          $ref: '#/components/responses/DefaultModel'
   /jwtauth/decode/{accessToken}:
     get:
       tags:
@@ -186,14 +186,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/decodeTokenResult"
+                $ref: '#/components/schemas/decodeTokenResult'
             application/xml:
               schema:
-                $ref: "#/components/schemas/decodeTokenResult"
+                $ref: '#/components/schemas/decodeTokenResult'
         "500":
           description: JWT accessToken decode failed.
         default:
-          $ref: "#/components/responses/DefaultModel"
+          $ref: '#/components/responses/DefaultModel'
   /post/new-article:
     put:
       tags:
@@ -322,10 +322,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/resArticles"
+                $ref: '#/components/schemas/resArticles'
             application/xml:
               schema:
-                $ref: "#/components/schemas/resArticles"
+                $ref: '#/components/schemas/resArticles'
         "403":
           $ref: '#/components/responses/NotAuthorized'
         "412":
@@ -361,10 +361,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/resComments"
+                $ref: '#/components/schemas/resComments'
             application/xml:
               schema:
-                $ref: "#/components/schemas/resComments"
+                $ref: '#/components/schemas/resComments'
         "403":
           $ref: '#/components/responses/NotAuthorized'
         "412":
@@ -409,10 +409,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/resEditlogs"
+                $ref: '#/components/schemas/resEditlogs'
             application/xml:
               schema:
-                $ref: "#/components/schemas/resEditlogs"
+                $ref: '#/components/schemas/resEditlogs'
         "403":
           $ref: '#/components/responses/NotAuthorized'
         "409":
@@ -553,10 +553,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/apiResult"
+            $ref: '#/components/schemas/apiResult'
         application/xml:
           schema:
-            $ref: "#/components/schemas/apiResult"
+            $ref: '#/components/schemas/apiResult'
   securitySchemes:
     JWTAuth:
       type: apiKey
@@ -586,6 +586,11 @@ components:
           type: string
         output:
           type: object
+          properties:
+            access:
+              type: string
+            refresh:
+              type: string
         error:
           type: string
     decodeTokenResult:
@@ -601,26 +606,42 @@ components:
             decode:
               type: object
               properties:
-                enable:
-                  type: boolean
-                email:
-                  type: string
-                name:
-                  type: string
-                gender:
-                  type: number
-                phone:
-                  type: string
-                areaString:
-                  type: string
-                lastlogin:
-                  type: string
-                profileimg:
-                  type: string
-                iat:
-                  type: number
-                exp:
-                  type: number
+                account:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    status:
+                      type: string
+                    joined:
+                      type: string
+                profile:
+                  type: object
+                  properties:
+                    imageurl:
+                      type: string
+                    name:
+                      type: string
+                    phone:	
+                      type: string	
+                    gender:	
+                      type: number	
+                    areaString:	
+                      type: string	
+                service:	
+                  type: object	
+                  properties:	
+                    community:	
+                      type: array	
+                      items:	
+                        type: object	
+                        properties:	
+                          id:	
+                            type: number	
+                          role:	
+                            type: string	
+                          joined:	
+                            type: string
         error:
           type: string
     resArticles:
