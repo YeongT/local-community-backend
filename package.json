@@ -37,12 +37,12 @@
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "swagger-jsdoc": "^4.3.0",
     "@babel/preset-env": "^7.12.1",
     "@babel/polyfill": "^7.12.1",
     "@babel/node": "^7.12.1",
     "@babel/core": "^7.12.1",
     "@babel/cli": "^7.12.1",
-    "swagger-jsdoc": "^4.2.3",
     "swagger-ui-express": "^4.1.4"
   }
 }
