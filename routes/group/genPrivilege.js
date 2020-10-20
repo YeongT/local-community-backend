@@ -13,6 +13,8 @@ const genPrivilege = async (userid, community, permission) => {
         return {"privileges": null, "privilege_error": err};
     }
 
+    //#DELETE EXIST PRIVILEDGE FILED FOR DATA SAVING
+    await Privilege.deleteMany({"user":userid, "target":community});
     const newPrivilege = new Privilege({
         user: userid,
         created: moment().format("YYYY-MM-DD HH:mm:ss"),

@@ -4,7 +4,7 @@ import timezone from "moment-timezone";
 import genPrivilege from "./genPrivilege";
 
 const updateUserlist = async (community, userlist, userid, role) => {
-    if (!(community && userlist && userid && role)) throw("ERR_UPDATE_USERLIST_DATA_NOT_PROVIDED");
+    if (!(community && userlist !== undefined && userid && role)) throw("ERR_UPDATE_USERLIST_DATA_NOT_PROVIDED");
 
     var arrayobj = userlist || [];
     try {
@@ -25,7 +25,7 @@ const updateUserlist = async (community, userlist, userid, role) => {
         "privileges": privileges
     };
     arrayobj.push(newMember);
-    return {"userlist": arrayobj, "listerror": null};
+    return {"privileges": privileges, "userlist": arrayobj, "listerror": null};
 };
 
 export default updateUserlist;
