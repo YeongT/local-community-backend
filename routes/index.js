@@ -11,16 +11,18 @@ const router = Router();
 
 import auth from "./auth";
 import post from "./post";
+import group from "./group";
 import jwtauth from "./jwtauth";
 
 router.use("/auth",auth);
 router.use("/post",post);
+router.use("/group", group);
 router.use("/jwtauth", jwtauth);
 
 const swaggerDefinition = YAML.load(pathJoin(__dirname, "swagger.yaml"));
 const options = {
     swaggerDefinition,
-    apis: ["./auth/index.js", "./list/index.js", "./index.js"]
+    apis: ["./auth/index.js", "./post/index.js", "./group/index.js", "./jwtauth/index.js", "./index.js"]
 };
 
 moment.tz.setDefault("Asia/Seoul");

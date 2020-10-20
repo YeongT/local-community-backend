@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import communityInfo from "./group/userdetail";
+import communityInfo from "./group/groupdetail";
 
 const User = new Schema({
   account: {
