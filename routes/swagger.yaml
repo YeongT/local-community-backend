@@ -16,6 +16,8 @@ tags:
     description: User Authentification API
   - name: jwtauth
     description: JwtToken Authentication API
+  - name: community
+    description: Community Management API
   - name: post
     description: Community Article/Comment API
 paths:
@@ -192,6 +194,58 @@ paths:
                 $ref: '#/components/schemas/decodeTokenResult'
         "500":
           description: JWT accessToken decode failed.
+        default:
+          $ref: '#/components/responses/DefaultModel'
+  /group/create:
+    put:
+      tags:
+        - community
+      summary: Local Communnity Create
+      description: api node for creating community
+      operationId: CreateCommunity
+      security:
+        - JWTAuth: []
+      parameters:
+        - name: refreshToken
+          in: header
+          schema:
+            type: string
+          description: refresh accessToken using refreshToken
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                groupname:
+                  description: name of new community
+                  type: string
+                groupimage:
+                  description: image of new community
+                  type: string
+                description:
+                  description: intro of new community
+                  type: string
+                areaString:
+                  description: areaString of new community
+                  type: string
+                tags:
+                  description: tag string of new community
+                  type: string
+              required:
+                - groupname
+                - description
+                - areaString
+                - tags
+      responses:
+        "200":
+          description: community created successfully.
+        "403":
+          $ref: '#/components/responses/NotAuthorized'
+        "412":
+          $ref: '#/components/responses/FormatError'
+        "500":
+          $ref: '#/components/responses/ServerError'
         default:
           $ref: '#/components/responses/DefaultModel'
   /post/new-article:
@@ -587,10 +641,13 @@ components:
         output:
           type: object
           properties:
-            access:
-              type: string
-            refresh:
-              type: string
+            token:
+              type: object
+              properties:
+                access:
+                  type: string
+                refresh:
+                  type: string
         error:
           type: string
     decodeTokenResult:
@@ -622,25 +679,25 @@ components:
                       type: string
                     name:
                       type: string
-                    phone:	
-                      type: string	
-                    gender:	
-                      type: number	
-                    areaString:	
-                      type: string	
-                service:	
-                  type: object	
-                  properties:	
-                    community:	
-                      type: array	
-                      items:	
-                        type: object	
-                        properties:	
-                          id:	
-                            type: number	
-                          role:	
-                            type: string	
-                          joined:	
+                    phone:
+                      type: string
+                    gender:
+                      type: number
+                    areaString:
+                      type: string
+                service:  
+                  type: object  
+                  properties:  
+                    community:  
+                      type: array  
+                      items:  
+                        type: object  
+                        properties:  
+                          id:  
+                            type: number  
+                          role:  
+                            type: string  
+                          joined:  
                             type: string
         error:
           type: string

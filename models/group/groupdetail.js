@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 
 const userDetail = new Schema({
-    user: Schema.Types.ObjectId,
+    community: Schema.Types.ObjectId,
     joined: String,
     privileges: Schema.Types.ObjectId
 }, {

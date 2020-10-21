@@ -6,6 +6,7 @@ const Community = new Schema({
     created: String,
     name: String,
     description: String,
+    areaString: String,
     picture: String,
     tags: Array
   },

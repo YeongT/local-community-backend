@@ -37,7 +37,7 @@ const jwtgetUser = async (req, jwtToken, options) => {
     };
 
     //#GET USER OBJECT FROM DATABASE EXCEPT AUTH FIELD
-    const _user = await User.findOne({"account.email" : _response.jwtdecode.account.email, "account.status": { $ne : "rejected"}}, {"auth":0});
+    const _user = await User.findOne({"account.email" : jwtdecode.account.email, "account.status": { $ne : "rejected"}}, {"auth":0});
     if (_user === null || _user === undefined) return jwtUserResponse("ERR_JWT_AUTHENTIFCATION_FAILED", null, "JWT_USER_ACCOUNT_NOT_ACCESSIBLE");
     if (!_user) return jwtUserResponse("ERR_JWT_AUTHENTIFCATION_FAILED", null, _user);
     
