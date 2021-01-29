@@ -956,7 +956,7 @@
     proxy-agent "^3.0.3"
     ws "^6.0.0"
 
-"@pm2/agent@~1.0.2":
+"@pm2/agent@~1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@pm2/agent/-/agent-1.0.4.tgz#1a7275e1415cd26a530405816ff5e453abb8fd8c"
   integrity sha512-cZLwaoLa45FRuetKCcoI3kHnnQ7VMLpZnmVom04MoK0cpY/RxcSarkCHSCu9V+pdARwxx96QrWdrtAJdw97dng==
@@ -991,14 +991,14 @@
     signal-exit "^3.0.3"
     tslib "1.9.3"
 
-"@pm2/js-api@~0.6.0":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@pm2/js-api/-/js-api-0.6.1.tgz#3ef1c3cb68f11f3b123fc1124e02062d2c96d8fe"
-  integrity sha512-LImZWHEzcpIrLZ7kt4z3Gllkoz+CChHk2waDretOWeinSItyTMrNpzcXcZd2QikP/57qPolLfHGFipHJmOKkwQ==
+"@pm2/js-api@~0.6.7":
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/@pm2/js-api/-/js-api-0.6.7.tgz#ed28c3b7b6d26f03f826318754fdc5468afa589f"
+  integrity sha512-jiJUhbdsK+5C4zhPZNnyA3wRI01dEc6a2GhcQ9qI38DyIk+S+C8iC3fGjcjUbt/viLYKPjlAaE+hcT2/JMQPXw==
   dependencies:
     async "^2.6.3"
-    axios "^0.19.0"
-    debug "~3.2.6"
+    axios "^0.21.0"
+    debug "~4.3.1"
     eventemitter2 "^6.3.1"
     ws "^7.0.0"
 
@@ -1182,12 +1182,12 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-axios@^0.19.0:
-  version "0.19.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
-  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
+axios@^0.21.0:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
-    follow-redirects "1.5.10"
+    follow-redirects "^1.10.0"
 
 babel-plugin-dynamic-import-node@^2.3.3:
   version "2.3.3"
@@ -1613,14 +1613,14 @@ debug@2, debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@3.1.0, debug@=3.1.0:
+debug@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
   dependencies:
     ms "2.0.0"
 
-debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.2, debug@^4.2.0:
+debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.2, debug@^4.3.0, debug@~4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
   integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
@@ -1634,7 +1634,7 @@ debug@4.1.1, debug@~4.1.1:
   dependencies:
     ms "^2.1.1"
 
-debug@^3.0, debug@^3.1.0, debug@^3.2.6, debug@~3.2.6:
+debug@^3.0, debug@^3.1.0, debug@^3.2.6:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.7.tgz#72580b7e9145fb39b6676f9c5e5fb100b934179a"
   integrity sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==
@@ -2017,12 +2017,10 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-follow-redirects@1.5.10:
-  version "1.5.10"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
-  integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
-  dependencies:
-    debug "=3.1.0"
+follow-redirects@^1.10.0:
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.2.tgz#dd73c8effc12728ba5cf4259d760ea5fb83e3147"
+  integrity sha512-6mPTgLxYm3r6Bkkg0vNM0HTjfGrOEtsfbhagQvbxDEsEkpNhw582upBaoRZylzen6krEmxXJgt9Ju6HiI4O7BA==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -3200,14 +3198,14 @@ pm2-multimeter@^0.1.2:
   dependencies:
     charm "~0.1.1"
 
-pm2@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/pm2/-/pm2-4.5.0.tgz#5cabba66beed866aa1fb1a7eaa904b06ca9df93d"
-  integrity sha512-sXKn0Qsrqj++qgsdGTASEsWfURhM6vSPIqFPwSwk3bK5/QPLxuRmVDW1y82M9wEnlgEjiIryaLhZUp5saLuhPA==
+pm2@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/pm2/-/pm2-4.5.2.tgz#c52a0ba7a35c5cd34c16a46e3321b92d5122401f"
+  integrity sha512-dLtutClRErywXQ5gf/oxA2Ru4aswwJNkSAUtvnHgqvVt0RFsaDp8WL3PobjPo/XOQnbKUdrJ7KDbcrYmwlappA==
   dependencies:
-    "@pm2/agent" "~1.0.2"
+    "@pm2/agent" "~1.0.4"
     "@pm2/io" "~4.3.5"
-    "@pm2/js-api" "~0.6.0"
+    "@pm2/js-api" "~0.6.7"
     "@pm2/pm2-version-check" latest
     async "~3.2.0"
     blessed "0.1.81"
@@ -3217,7 +3215,7 @@ pm2@^4.5.0:
     commander "2.15.1"
     cron "1.8.2"
     dayjs "~1.8.25"
-    debug "^4.2.0"
+    debug "^4.3.0"
     enquirer "2.3.6"
     eventemitter2 "5.0.1"
     fclone "1.0.11"
@@ -3236,7 +3234,7 @@ pm2@^4.5.0:
     vizion "0.2.13"
     yamljs "0.3.0"
   optionalDependencies:
-    systeminformation "^4.23.3"
+    systeminformation "^4.32"
 
 posix-character-classes@^0.1.0:
   version "0.1.1"
@@ -3847,10 +3845,10 @@ swagger-ui-express@^4.1.5:
   dependencies:
     swagger-ui-dist "^3.18.1"
 
-systeminformation@^4.23.3:
-  version "4.32.0"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.32.0.tgz#37e0919ef32d25fe1bfaf2d817eb4a0f2950c358"
-  integrity sha512-8/LM0EvwhW34+n3fzmcl4swG7Ngx8h8s/5MooXlIJKyMbSiO9juCqftdQIpwa3NneKrca1uYO55JHZeYJUaSZw==
+systeminformation@^4.32:
+  version "4.34.9"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.34.9.tgz#70412e71ed755881930c0a7bbd831a905a7a362d"
+  integrity sha512-jvc4DlJeXazsen2riPDR97GSaHNCmoL+mgfB8IXxmpNpNd7kv5MfkuihXEmF1/prBFtqzUA2lxnt1qp4maOMQA==
 
 thunkify@^2.1.2:
   version "2.1.2"
